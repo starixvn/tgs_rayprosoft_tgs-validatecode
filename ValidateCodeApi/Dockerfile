@@ -11,15 +11,12 @@ RUN --mount=type=secret,id=nuget,dst=/pat cp /pat ~/.nuget/NuGet/NuGet.Config
 RUN dotnet nuget remove source 'Microsoft Visual Studio Offline Packages' || true
 WORKDIR /src
 COPY ["nuget.config", "."]
-COPY ["src/Apis/ValidateCodeApi/ValidateCodeApi.csproj", "src/Apis/ValidateCodeApi/"]
-COPY ["src/Services/ValidateCode.Core/ValidateCode.Core.csproj", "src/Services/ValidateCode.Core/"]
-COPY ["src/Repositories/ValidateCodeRepository/ValidateCodeRepository.csproj", "src/Repositories/ValidateCodeRepository/"]
-COPY ["src/Core/Infrastructures/Infrastructures.csproj", "src/Core/Infrastructures/"]
-COPY ["src/Core/Models/Models.csproj", "src/Core/Models/"]
-COPY ["src/Core/DataServices.Base/DataServices.Base.csproj", "src/Core/DataServices.Base/"]
-RUN dotnet restore "src/Apis/ValidateCodeApi/ValidateCodeApi.csproj"
+COPY ["ValidateCodeApi/ValidateCodeApi.csproj", "ValidateCodeApi/"]
+COPY ["ValidateCode.Core/ValidateCode.Core.csproj", "ValidateCode.Core/"]
+COPY ["ValidateCodeRepository/ValidateCodeRepository.csproj", "ValidateCodeRepository/"]
+RUN dotnet restore "ValidateCodeApi/ValidateCodeApi.csproj"
 COPY . .
-WORKDIR "/src/src/Apis/ValidateCodeApi"
+WORKDIR "/src/ValidateCodeApi"
 RUN dotnet build "ValidateCodeApi.csproj" -c ${BuildConfiguration} -o /app/build
 
 FROM build AS publish
