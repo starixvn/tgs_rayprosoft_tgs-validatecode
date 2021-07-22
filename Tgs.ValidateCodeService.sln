@@ -1,0 +1,60 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31515.178
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ValidateCode.Core", "ValidateCode.Core\ValidateCode.Core.csproj", "{47B0910E-63EA-4B78-BAFA-E05EADDA2D8C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ValidateCodeRepository", "ValidateCodeRepository\ValidateCodeRepository.csproj", "{BA62C5B0-855D-4531-8A47-7E36E208F0C9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ValidateCodeApi", "ValidateCodeApi\ValidateCodeApi.csproj", "{3DE0C739-707B-4242-9110-C63C79098AA6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ValidateCode.UnitTests", "ValidateCode.UnitTests\ValidateCode.UnitTests.csproj", "{5BDB24E7-3025-4FE1-8B5D-ADB7E68A5A16}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ValidateCode.IntegrationTests", "ValidateCode.IntegrationTests\ValidateCode.IntegrationTests.csproj", "{5429574F-4797-476C-86E4-4402300C90FB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{48D19FBB-0381-4209-9B49-53A75559E93B}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidateCodeClient", "ValidateCodeClient\ValidateCodeClient.csproj", "{5BA7CE18-8C32-49D5-A785-C81578271B8B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{47B0910E-63EA-4B78-BAFA-E05EADDA2D8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47B0910E-63EA-4B78-BAFA-E05EADDA2D8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47B0910E-63EA-4B78-BAFA-E05EADDA2D8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47B0910E-63EA-4B78-BAFA-E05EADDA2D8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA62C5B0-855D-4531-8A47-7E36E208F0C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA62C5B0-855D-4531-8A47-7E36E208F0C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA62C5B0-855D-4531-8A47-7E36E208F0C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA62C5B0-855D-4531-8A47-7E36E208F0C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3DE0C739-707B-4242-9110-C63C79098AA6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DE0C739-707B-4242-9110-C63C79098AA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DE0C739-707B-4242-9110-C63C79098AA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3DE0C739-707B-4242-9110-C63C79098AA6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BDB24E7-3025-4FE1-8B5D-ADB7E68A5A16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BDB24E7-3025-4FE1-8B5D-ADB7E68A5A16}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BDB24E7-3025-4FE1-8B5D-ADB7E68A5A16}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BDB24E7-3025-4FE1-8B5D-ADB7E68A5A16}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5429574F-4797-476C-86E4-4402300C90FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5429574F-4797-476C-86E4-4402300C90FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5429574F-4797-476C-86E4-4402300C90FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5429574F-4797-476C-86E4-4402300C90FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BA7CE18-8C32-49D5-A785-C81578271B8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BA7CE18-8C32-49D5-A785-C81578271B8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BA7CE18-8C32-49D5-A785-C81578271B8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BA7CE18-8C32-49D5-A785-C81578271B8B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D8277F30-74F0-4682-A833-DAC4B71C7EB3}
+	EndGlobalSection
+EndGlobal
