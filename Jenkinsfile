@@ -63,17 +63,49 @@ pipeline {
 			}
 		}
 
-		// stage('Build Docker Image') {
-		// 	steps {
-		// 		sh 'dotnet build "PaymentService/PaymentService.csproj" -c $BuildConfiguration -t:ContainerBuild -p:DockerfileTag="$ImageName:${TAG}" --no-restore '
-		// 	}
-		// }
+		stage('Build Docker Image') {
+			steps {
+				sh 'dotnet build "ValidateCodeApi/ValidateCodeApi.csproj" -c $BuildConfiguration -t:ContainerBuild -p:DockerfileTag="$ImageName:${TAG}" --no-restore '
+			}
+		}
 
-		// stage('Push Docker Image') {
-		// 	steps {
-		// 		sh 'docker push $ImageName:${TAG}'
-		// 	}
-		// }
+		stage('Push Docker Image') {
+			steps {
+				sh 'docker push $ImageName:${TAG}'
+			}
+		}
+
+		stage('Deploy') {
+            when {
+                expression {
+                    return env.kube_ns != 'dev';
+                }
+            }
+
+            steps {
+                script {
+                    input message: 'Ready to go?', ok: 'yes';
+                }
+                
+                sh "echo start deploy"
+            }
+        }
+
+		stage('Deploy validatecode-api') {
+            steps {
+                withKubeConfig([credentialsId: 'k8s-kube-config']) {
+                    sh '''
+                        helm template deployment/k8s/validatecode-api \
+                            --set image.tag=${TAG} \
+                            --set namespace=${kube_ns} \
+                            --set \\"connectionStrings.tgs=\\${tgs_tgs}\\" \
+                            --set \\"connectionStrings.redis=\\${tgs_redis}\\" \
+                        | tee /dev/stdout \
+                        | kubectl apply -f -
+                    '''
+                }
+            }
+        }
 	}
 
 	post {
