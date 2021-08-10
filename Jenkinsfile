@@ -101,7 +101,7 @@ pipeline {
                         helm template deployment/k8s/validatecode-api \
                             --set image.tag=${TAG} \
                             --set connectionStrings.tgs="$tgs_tgs" \
-                            --set connectionStrings.redis="$tgs_redis"
+                            --set connectionStrings.redis="$tgs_redis" \
 
                         helm template deployment/k8s/validatecode-api \
                             --set image.tag=${TAG} \
