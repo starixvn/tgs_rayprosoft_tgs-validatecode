@@ -13,11 +13,11 @@ pipeline {
                 script {
                     switch(env.GIT_BRANCH)
                     {
-                        case 'origin/main':
+                        case ['main', 'origin/main']:
                             env.kube_ns = "prod";
 							env.k8s_config = 'stag-k8s-config';
                             break;
-                        case 'origin/release':
+                        case ['release', 'origin/release']:
                             env.kube_ns = "staging";
 							env.k8s_config = 'stag-k8s-config';
                             break;
