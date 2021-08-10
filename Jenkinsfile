@@ -78,21 +78,21 @@ pipeline {
 			}
 		}
 
-		// stage('Deploy') {
-        //     when {
-        //         expression {
-        //             return env.kube_ns != 'dev';
-        //         }
-        //     }
+		//stage('deploy') {
+        //    when {
+        //        expression {
+        //            return env.kube_ns != 'dev';
+        //        }
+        //    }
 
-        //     steps {
-        //         script {
-        //             input message: 'Ready to go?', ok: 'yes';
-        //         }
+        //    steps {
+        //        script {
+        //             input message: 'ready to go?', ok: 'yes';
+        //        }
                 
-        //         sh "echo start deploy"
-        //     }
-        // }
+        //        sh "echo start deploy"
+        //    }
+        //}
 
 		stage('Deploy validatecode-api') {
             steps {
