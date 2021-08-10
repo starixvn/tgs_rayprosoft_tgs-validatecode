@@ -105,7 +105,6 @@ pipeline {
 
                         helm template deployment/k8s/validatecode-api \
                             --set image.tag=${TAG} \
-                            --set namespace=${kube_ns} \
                             --set connectionStrings.tgs="$tgs_tgs" \
                             --set connectionStrings.redis="$tgs_redis" \
                         | kubectl -n ${kube_ns} apply -f -
