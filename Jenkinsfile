@@ -13,11 +13,11 @@ pipeline {
                 script {
                     switch(env.GIT_BRANCH)
                     {
-                        case 'origin/main':
+                        case ['main', 'origin/main']:
                             env.kube_ns = "prod";
 							env.k8s_config = 'stag-k8s-config';
                             break;
-                        case 'origin/release':
+                        case ['release', 'origin/release']:
                             env.kube_ns = "staging";
 							env.k8s_config = 'stag-k8s-config';
                             break;
@@ -78,21 +78,21 @@ pipeline {
 			}
 		}
 
-		// stage('Deploy') {
-        //     when {
-        //         expression {
-        //             return env.kube_ns != 'dev';
-        //         }
-        //     }
+		//stage('deploy') {
+        //    when {
+        //        expression {
+        //            return env.kube_ns != 'dev';
+        //        }
+        //    }
 
-        //     steps {
-        //         script {
-        //             input message: 'Ready to go?', ok: 'yes';
-        //         }
+        //    steps {
+        //        script {
+        //             input message: 'ready to go?', ok: 'yes';
+        //        }
                 
-        //         sh "echo start deploy"
-        //     }
-        // }
+        //        sh "echo start deploy"
+        //    }
+        //}
 
 		stage('Deploy validatecode-api') {
             steps {
