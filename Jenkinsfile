@@ -75,21 +75,21 @@ pipeline {
 			}
 		}
 
-		stage('Deploy') {
-            when {
-                expression {
-                    return env.kube_ns != 'dev';
-                }
-            }
+		// stage('Deploy') {
+        //     when {
+        //         expression {
+        //             return env.kube_ns != 'dev';
+        //         }
+        //     }
 
-            steps {
-                script {
-                    input message: 'Ready to go?', ok: 'yes';
-                }
+        //     steps {
+        //         script {
+        //             input message: 'Ready to go?', ok: 'yes';
+        //         }
                 
-                sh "echo start deploy"
-            }
-        }
+        //         sh "echo start deploy"
+        //     }
+        // }
 
 		stage('Deploy validatecode-api') {
             steps {
@@ -98,10 +98,15 @@ pipeline {
                         helm template deployment/k8s/validatecode-api \
                             --set image.tag=${TAG} \
                             --set namespace=${kube_ns} \
-                            --set \\"connectionStrings.tgs=\\${tgs_tgs}\\" \
-                            --set \\"connectionStrings.redis=\\${tgs_redis}\\" \
-                        | tee /dev/stdout \
-                        | kubectl apply -f -
+                            --set connectionStrings.tgs="$tgs_tgs" \
+                            --set connectionStrings.redis="$tgs_redis"
+
+                        helm template deployment/k8s/validatecode-api \
+                            --set image.tag=${TAG} \
+                            --set namespace=${kube_ns} \
+                            --set connectionStrings.tgs="$tgs_tgs" \
+                            --set connectionStrings.redis="$tgs_redis" \
+                        | kubectl -n ${kube_ns} apply -f -
                     '''
                 }
             }
