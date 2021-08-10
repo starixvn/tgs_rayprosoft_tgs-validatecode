@@ -96,7 +96,7 @@ pipeline {
 
 		stage('Deploy validatecode-api') {
             steps {
-                withKubeConfig([credentialsId: env.k8s_config = 'k8s-kube-config' ]) {
+                withKubeConfig([credentialsId: env.k8s_config]) {
                     sh '''
                         helm template deployment/k8s/validatecode-api \
                             --set image.tag=${TAG} \
