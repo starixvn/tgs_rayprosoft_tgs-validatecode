@@ -15,12 +15,15 @@ pipeline {
                     {
                         case 'origin/main':
                             env.kube_ns = "prod";
+							env.k8s_config = 'stag-k8s-config';
                             break;
                         case 'origin/release':
                             env.kube_ns = "staging";
+							env.k8s_config = 'stag-k8s-config';
                             break;
                         default:
                             env.kube_ns = "dev";
+							env.k8s_config = 'k8s-kube-config' 
                             break;
                     }
                 }
@@ -75,33 +78,36 @@ pipeline {
 			}
 		}
 
-		stage('Deploy') {
-            when {
-                expression {
-                    return env.kube_ns != 'dev';
-                }
-            }
+		// stage('Deploy') {
+        //     when {
+        //         expression {
+        //             return env.kube_ns != 'dev';
+        //         }
+        //     }
 
-            steps {
-                script {
-                    input message: 'Ready to go?', ok: 'yes';
-                }
+        //     steps {
+        //         script {
+        //             input message: 'Ready to go?', ok: 'yes';
+        //         }
                 
-                sh "echo start deploy"
-            }
-        }
+        //         sh "echo start deploy"
+        //     }
+        // }
 
 		stage('Deploy validatecode-api') {
             steps {
-                withKubeConfig([credentialsId: 'k8s-kube-config']) {
+                withKubeConfig([credentialsId: env.k8s_config]) {
                     sh '''
                         helm template deployment/k8s/validatecode-api \
                             --set image.tag=${TAG} \
-                            --set namespace=${kube_ns} \
-                            --set \\"connectionStrings.tgs=\\${tgs_tgs}\\" \
-                            --set \\"connectionStrings.redis=\\${tgs_redis}\\" \
-                        | tee /dev/stdout \
-                        | kubectl apply -f -
+                            --set connectionStrings.tgs="$tgs_tgs" \
+                            --set connectionStrings.redis="$tgs_redis" \
+
+                        helm template deployment/k8s/validatecode-api \
+                            --set image.tag=${TAG} \
+                            --set connectionStrings.tgs="$tgs_tgs" \
+                            --set connectionStrings.redis="$tgs_redis" \
+                        | kubectl -n ${kube_ns} apply -f -
                     '''
                 }
             }
