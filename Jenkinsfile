@@ -41,9 +41,9 @@ pipeline {
                         }
 
                         env.TAG = env.kube_ns + '-' + sh(script: "echo `date +%Y%m%d%H%M`", returnStdout: true).trim()
-						message += "\nBranch:${env.GIT_BRANCH}" 
-						message += "\nTag:${env.TAG}"
-						message += "\nEnv:${env.kube_ns}"
+						message += "\nBranch: ${env.GIT_BRANCH}" 
+						message += "\nTag: ${env.TAG}"
+						message += "\nEnv: ${env.kube_ns}"
 					}
 				}
 
