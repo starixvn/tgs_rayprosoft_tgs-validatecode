@@ -90,7 +90,7 @@ pipeline {
                      input message: 'ready to go?', ok: 'yes';
                 }
                 
-                sh "echo start deploy"
+        //        sh "echo start deploy"
             }
         }
 
