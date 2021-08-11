@@ -124,17 +124,11 @@ pipeline {
                 }
             }
 						
-            steps {
-			
-				withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:'gitssh-user-pwd', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+            steps {	
+				withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:'gitlab-user-pwd', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
 				    sh 'git tag -a $TAG -m "${TAG}" '
 				    sh 'git push https://$USERNAME:$PASSWORD@gitlab.com/rayprosoft/tgs-validatecode.git --tags'
 				}
-				//sshagent (credentials: ['ssh-jenkins']) {
-				    //sh 'git tag -a $TAG -m "${TAG}" '
-					//sh 'git push https://lester.wei:1q2w3e4r@gitlab.com/rayprosoft/tgs-validatecode.git --tags'
-				    //sh 'git push https://${gitssh-user-pwd_USR}:${gitssh-user-pwd_PSW}@gitlab.com/rayprosoft/tgs-validatecode.git --tags'
-				//}
             }
         }
 	}
