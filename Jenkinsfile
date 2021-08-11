@@ -131,7 +131,7 @@ pipeline {
 				  git tag -a $TAG -m '$TAG'
 				'''
 				sshagent (credentials: ['ssh-jenkins']) {
-				    sh 'git push https://${gitlab_user_pwd_USR}:${gitlab_user_pwd_PSW}@gitlab.com/rayprosoft/tgs-validatecode.git --tags'
+				    sh 'git push https://lester.wei:1q2w3e4r@gitlab.com/rayprosoft/tgs-validatecode.git --tags'
 				}
             }
         }
