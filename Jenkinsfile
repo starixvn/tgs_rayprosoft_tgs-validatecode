@@ -120,7 +120,7 @@ pipeline {
 	    stage('Add Tag') {
             when {
                 expression {
-                    return env.kube_ns == 'dev';
+                    return env.kube_ns == 'prod';
                 }
             }
 						
