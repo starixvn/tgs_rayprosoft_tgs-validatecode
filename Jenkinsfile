@@ -125,13 +125,9 @@ pipeline {
             }
 						
             steps {
-				sh '''
-				  git config --global user.email 'admin@rayprosoft.com'
-				  git config --global user.name 'tgs.admin'
-				  git tag -a $TAG -m '$TAG'
-				'''
 				sshagent (credentials: ['ssh-jenkins']) {
-				    sh 'git push https://lester.wei:1q2w3e4r@gitlab.com/rayprosoft/tgs-validatecode.git --tags'
+				    sh 'git tag -a $TAG -m '${TAG}'
+				    sh 'git push https://${git-user-pwd_USR}:${git-user-pwd_PSW}@gitlab.com/rayprosoft/tgs-validatecode.git --tags'
 				}
             }
         }
