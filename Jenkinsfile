@@ -125,7 +125,7 @@ pipeline {
             }
 						
             steps {	
-				withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:'gitlab-user-pwd', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+				withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:'gitssh-user-pwd', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
 				    sh 'git tag -a $TAG -m "${TAG}" '
 				    sh 'git push https://$USERNAME:$PASSWORD@gitlab.com/rayprosoft/tgs-validatecode.git --tags'
 				}
