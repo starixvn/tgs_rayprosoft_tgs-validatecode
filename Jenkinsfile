@@ -4,7 +4,7 @@ pipeline {
 	
 	environment {
         BuildConfiguration='Debug'
-		ImageName="registry.gitlab.com/rayprosoft/turnkey-gaming-system/validatecode-api"
+        ImageName="registry.gitlab.com/rayprosoft/turnkey-gaming-system/validatecode-api"
 	}
 
     stages {
@@ -114,6 +114,26 @@ pipeline {
                         | kubectl -n ${kube_ns} apply -f -
                     '''
                 }
+            }
+        }
+		
+	    stage('deploy') {
+            when {
+                expression {
+                    return env.kube_ns == 'develop';
+                }
+            }
+
+            steps {
+				sh '''
+				  git config --global user.email 'admin@rayprosoft.com'
+				  git config --global user.name 'tgs.admin'
+				  git tag ${env.TAG}
+				'''
+				
+				sshagent (credentials: ['gitlab-user-pwd']) {
+				  sh 'git push --tags'
+				}
             }
         }
 	}
