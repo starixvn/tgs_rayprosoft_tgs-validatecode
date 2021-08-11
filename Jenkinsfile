@@ -128,7 +128,7 @@ pipeline {
 				sh '''
 				  git config --global user.email 'admin@rayprosoft.com'
 				  git config --global user.name 'tgs.admin'
-				  git tag -am $env.TAG
+				  git tag -am $TAG
 				'''
 				
 				sshagent (credentials: ['gitlab-user-pwd']) {
