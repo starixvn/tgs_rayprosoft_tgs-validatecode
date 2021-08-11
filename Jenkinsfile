@@ -131,7 +131,7 @@ pipeline {
 				  git tag -a $TAG -m '$TAG'
 				'''
 				
-				sshagent (credentials: ['gitlab-user-pwd']) {
+				sshagent (credentials: ['ssh-jenkins']) {
 				  sh 'git push --tags'
 				}
             }
