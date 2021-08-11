@@ -132,7 +132,8 @@ pipeline {
 				'''
 				
 				sshagent (credentials: ['ssh-jenkins']) {
-				  sh 'git push --tags'
+				    sh 'git remote add origin https://${gitlab_user_pwd_USR}:${gitlab_user_pwd_PSW}@gitlab.com/rayprosoft/tgs-validatecode.git'
+				    sh 'git push --tags'
 				}
             }
         }
