@@ -5,6 +5,7 @@ pipeline {
 	environment {
         BuildConfiguration='Debug'
         ImageName="registry.gitlab.com/rayprosoft/turnkey-gaming-system/validatecode-api"
+		GitUrl = "gitlab.com/rayprosoft/tgs-validatecode.git"
 	}
 
     stages {
@@ -117,7 +118,7 @@ pipeline {
             }
         }
 		
-	    stage('Add Tag') {
+		stage('Add Tag') {
             when {
                 expression {
                     return env.kube_ns == 'prod';
@@ -126,8 +127,8 @@ pipeline {
 						
             steps {	
 				withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:'gitssh-user-pwd', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-				    sh 'git tag -a $TAG -m "${TAG}" '
-				    sh 'git push https://$USERNAME:$PASSWORD@gitlab.com/rayprosoft/tgs-validatecode.git --tags'
+				    sh "git tag -a ${TAG} -m ${TAG}"
+				    sh "git push https://$USERNAME:$PASSWORD@${GitUrl} --tags"
 				}
             }
         }
