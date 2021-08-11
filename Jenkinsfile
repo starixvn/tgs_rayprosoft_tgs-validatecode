@@ -126,8 +126,8 @@ pipeline {
 						
             steps {
 				sshagent (credentials: ['ssh-jenkins']) {
-				    sh '''git tag -a $TAG -m '${TAG}' '''
-				    sh 'git push https://${git-user-pwd_USR}:${git-user-pwd_PSW}@gitlab.com/rayprosoft/tgs-validatecode.git --tags'
+				    sh '''git tag -a $TAG -m "${TAG}" '''
+				    sh 'git push https://${gitssh-user-pwd_USR}:${gitssh-user-pwd_PSW}@gitlab.com/rayprosoft/tgs-validatecode.git --tags'
 				}
             }
         }
