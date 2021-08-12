@@ -4,7 +4,10 @@ pipeline {
 	
 	environment {
         BuildConfiguration='Debug'
-		ImageName="registry.gitlab.com/rayprosoft/turnkey-gaming-system/validatecode-api"
+        ImageName="registry.gitlab.com/rayprosoft/turnkey-gaming-system/validatecode-api"
+		GitUrl = "gitlab.com/rayprosoft/tgs-validatecode.git"
+		ImageTagUrl = "https://gitlab.com/api/v4/projects/20478010/registry/repositories/2154529/tags"
+		GitLabToken = "oD2cksJhGN1tgUuaE6C9"
 	}
 
     stages {
@@ -114,6 +117,27 @@ pipeline {
                         | kubectl -n ${kube_ns} apply -f -
                     '''
                 }
+            }
+        }
+		
+		stage('Add Tag') {
+            when {
+                expression {
+                    return env.kube_ns == 'prod';
+                }
+            }
+						
+            steps {	
+				withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:'gitssh-user-pwd', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+				    sh "git tag -a ${TAG} -m ${TAG}"
+				    sh "git push https://$USERNAME:$PASSWORD@${GitUrl} --tags"
+				}
+            }
+        }
+		
+		stage('Remove Image Tags') {					
+            steps {	
+				sh "curl --request DELETE --data \'name_regex_delete=.*\' --data \'keep_n=10\' --header \'PRIVATE-TOKEN: ${GitLabToken}\' ${ImageTagUrl}"
             }
         }
 	}
