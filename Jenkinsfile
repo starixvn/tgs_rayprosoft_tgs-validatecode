@@ -1,14 +1,12 @@
 def message = "";
 pipeline {
-    agent any
-	
+    agent any	
 	environment {
         BuildConfiguration='Debug'
         ImageName="registry.gitlab.com/rayprosoft/turnkey-gaming-system/validatecode-api"
-		GitUrl = "gitlab.com/rayprosoft/tgs-validatecode.git"
-		ImageTagUrl = "https://gitlab.com/api/v4/projects/20478010/registry/repositories/2154529/tags"
+        GitUrl = "gitlab.com/rayprosoft/tgs-validatecode.git"
+        ImageTagUrl = "https://gitlab.com/api/v4/projects/20478010/registry/repositories/2154529/tags"
 	}
-
     stages {
         stage('Prepare') {
             steps {
@@ -18,11 +16,11 @@ pipeline {
                     {
                         case ['main', 'origin/main']:
                             env.kube_ns = "prod";
-							env.k8s_config = 'stag-k8s-config';
+                            env.k8s_config = 'stag-k8s-config';
                             break;
                         case ['release', 'origin/release']:
                             env.kube_ns = "staging";
-							env.k8s_config = 'stag-k8s-config';
+                            env.k8s_config = 'stag-k8s-config';
                             break;
                         default:
                             env.kube_ns = "dev";
@@ -32,27 +30,23 @@ pipeline {
                 }
 
                 configFileProvider([
-					configFile(
-						fileId: 'tgs.' + env.kube_ns , 
-						variable: 'tgsconfig')]) {
-					script {
-						def envItems = readProperties file: "$tgsconfig";
-
+                    configFile(
+                        fileId: 'tgs.' + env.kube_ns , 
+                        variable: 'tgsconfig')]) {
+                    script {
+                        def envItems = readProperties file: "$tgsconfig";
                         envItems.each { key, value -> 
                             env."tgs_${key}" = value;
                         }
-
                         env.TAG = env.kube_ns + '-' + sh(script: "echo `date +%Y%m%d%H%M`", returnStdout: true).trim()
-						message += "\nBranch: ${env.GIT_BRANCH}" 
-						message += "\nTag: ${env.TAG}"
-						message += "\nEnv: ${env.kube_ns}"
+                        message += "\nBranch: ${env.GIT_BRANCH}" 
+                        message += "\nTag: ${env.TAG}"
+                        message += "\nEnv: ${env.kube_ns}"
 					}
 				}
-
                 sh "echo tag: $TAG"
             }
         }
-
         stage('Build') {
             steps {
                 sh 'dotnet build -c $BuildConfiguration'
@@ -60,30 +54,26 @@ pipeline {
         }
 
 		stage('Test') {
-			steps {
-				sh 'dotnet test -c $BuildConfiguration --logger trx --no-build'
-			}
-		}
-		
-		stage('Push packages') {
-			steps {
-				sh 'dotnet pack -c $BuildConfiguration "ValidateCodeClient/ValidateCodeClient.csproj" --no-build'
-				sh 'dotnet nuget push "ValidateCodeClient/bin/$BuildConfiguration/*.nupkg" --source "raypro" --skip-duplicate'
-			}
-		}
-
-		stage('Build Docker Image') {
-			steps {
-				sh 'dotnet build "ValidateCodeApi/ValidateCodeApi.csproj" -c $BuildConfiguration -t:ContainerBuild -p:DockerfileTag="$ImageName:${TAG}" --no-restore '
-			}
-		}
-
-		stage('Push Docker Image') {
-			steps {
-				sh 'docker push $ImageName:${TAG}'
-			}
-		}
-
+            steps {
+                sh 'dotnet test -c $BuildConfiguration --logger trx --no-build'
+            }
+        }
+        stage('Push packages') {
+	        steps {
+                sh 'dotnet pack -c $BuildConfiguration "ValidateCodeClient/ValidateCodeClient.csproj" --no-build'
+                sh 'dotnet nuget push "ValidateCodeClient/bin/$BuildConfiguration/*.nupkg" --source "raypro" --skip-duplicate'
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                sh 'dotnet build "ValidateCodeApi/ValidateCodeApi.csproj" -c $BuildConfiguration -t:ContainerBuild -p:DockerfileTag="$ImageName:${TAG}" --no-restore '
+            }
+        }
+        stage('Push Docker Image') {
+            steps {
+                sh 'docker push $ImageName:${TAG}'
+            }
+        }
 		//stage('deploy') {
         //    when {
         //        expression {
@@ -119,7 +109,7 @@ pipeline {
             }
         }
 		
-		stage('Add Tag') {
+        stage('Add Tag') {
             when {
                 expression {
                     return env.kube_ns == 'prod';
@@ -129,31 +119,31 @@ pipeline {
             steps {	
 				withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:'gitssh-user-pwd', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
 				    sh "git tag -a ${TAG} -m ${TAG}"
-				    sh "git push https://$USERNAME:$PASSWORD@${GitUrl} --tags"
-				}
+                    sh "git push https://$USERNAME:$PASSWORD@${GitUrl} --tags"
+                }
             }
         }
 		
-		stage('Remove Image Tags') {					
+        stage('Remove Image Tags') {					
             steps {	
 			    withCredentials([string(credentialsId: "GitLabToken", variable: "GitLabToken")]) {					
-					sh "curl --request DELETE --data \'name_regex_delete=.*\' --data \'keep_n=10\' --header \'PRIVATE-TOKEN: ${GitLabToken}\' ${ImageTagUrl}"
-				}
+                    sh "curl --request DELETE --data \'name_regex_delete=.*\' --data \'keep_n=10\' --header \'PRIVATE-TOKEN: ${GitLabToken}\' ${ImageTagUrl}"
+                }
             }
         }
-	}
+    }
 
-	post {
-		always {
-			step([$class: 'MSTestPublisher', testResultsFile:"**/*.trx", failOnError: false, keepLongStdio: true])
-		}
-		success {
+    post {
+        always {
+            step([$class: 'MSTestPublisher', testResultsFile:"**/*.trx", failOnError: false, keepLongStdio: true])
+        }
+        success {
              sendTelegram("Pipeline: ${currentBuild.fullDisplayName} OK! ${message} \n${currentBuild.getBuildCauses()[0].shortDescription}\n")
         }
         failure {
             sendTelegram("<b>Failed Pipeline:</b> ${currentBuild.fullDisplayName} Something is wrong with ${env.BUILD_URL}/console\n${currentBuild.getBuildCauses()[0].shortDescription}\n")
         }
-	}
+    }
 }
 
 def sendTelegram(message) {
