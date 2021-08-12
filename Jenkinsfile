@@ -6,7 +6,7 @@ pipeline {
         ImageName="registry.gitlab.com/rayprosoft/turnkey-gaming-system/validatecode-api"
         GitUrl = "gitlab.com/rayprosoft/tgs-validatecode.git"
         ImageTagUrl = "https://gitlab.com/api/v4/projects/20478010/registry/repositories/2154529/tags"
-	}
+    }
     stages {
         stage('Prepare') {
             steps {
@@ -24,7 +24,7 @@ pipeline {
                             break;
                         default:
                             env.kube_ns = "dev";
-							env.k8s_config = 'k8s-kube-config' 
+                            env.k8s_config = 'k8s-kube-config' 
                             break;
                     }
                 }
@@ -42,7 +42,7 @@ pipeline {
                         message += "\nBranch: ${env.GIT_BRANCH}" 
                         message += "\nTag: ${env.TAG}"
                         message += "\nEnv: ${env.kube_ns}"
-					}
+                    }
 				}
                 sh "echo tag: $TAG"
             }
@@ -53,7 +53,7 @@ pipeline {
             }
         }
 
-		stage('Test') {
+        stage('Test') {
             steps {
                 sh 'dotnet test -c $BuildConfiguration --logger trx --no-build'
             }
@@ -74,7 +74,7 @@ pipeline {
                 sh 'docker push $ImageName:${TAG}'
             }
         }
-		//stage('deploy') {
+        //stage('deploy') {
         //    when {
         //        expression {
         //            return env.kube_ns != 'dev';
@@ -90,7 +90,7 @@ pipeline {
         //    }
         //}
 
-		stage('Deploy validatecode-api') {
+        stage('Deploy validatecode-api') {
             steps {
                 withKubeConfig([credentialsId: env.k8s_config]) {
                     sh '''
@@ -114,10 +114,9 @@ pipeline {
                 expression {
                     return env.kube_ns == 'prod';
                 }
-            }
-						
+            }		
             steps {	
-				withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:'gitssh-user-pwd', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:'gitssh-user-pwd', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
 				    sh "git tag -a ${TAG} -m ${TAG}"
                     sh "git push https://$USERNAME:$PASSWORD@${GitUrl} --tags"
                 }
