@@ -7,7 +7,6 @@ pipeline {
         ImageName="registry.gitlab.com/rayprosoft/turnkey-gaming-system/validatecode-api"
 		GitUrl = "gitlab.com/rayprosoft/tgs-validatecode.git"
 		ImageTagUrl = "https://gitlab.com/api/v4/projects/20478010/registry/repositories/2154529/tags"
-		GitLabToken = "oD2cksJhGN1tgUuaE6C9"
 	}
 
     stages {
@@ -137,7 +136,9 @@ pipeline {
 		
 		stage('Remove Image Tags') {					
             steps {	
-				sh "curl --request DELETE --data \'name_regex_delete=.*\' --data \'keep_n=10\' --header \'PRIVATE-TOKEN: ${GitLabToken}\' ${ImageTagUrl}"
+			    withCredentials([string(credentialsId: "GitLabToken", variable: "GitLabToken")]) {					
+					sh "curl --request DELETE --data \'name_regex_delete=.*\' --data \'keep_n=10\' --header \'PRIVATE-TOKEN: ${GitLabToken}\' ${ImageTagUrl}"
+				}
             }
         }
 	}
