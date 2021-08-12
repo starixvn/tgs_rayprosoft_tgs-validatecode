@@ -52,7 +52,6 @@ pipeline {
                 sh 'dotnet build -c $BuildConfiguration'
             }
         }
-
         stage('Test') {
             steps {
                 sh 'dotnet test -c $BuildConfiguration --logger trx --no-build'
@@ -89,7 +88,6 @@ pipeline {
         //        sh "echo start deploy"
         //    }
         //}
-
         stage('Deploy validatecode-api') {
             steps {
                 withKubeConfig([credentialsId: env.k8s_config]) {
@@ -107,8 +105,7 @@ pipeline {
                     '''
                 }
             }
-        }
-		
+        }	
         stage('Add Tag') {
             when {
                 expression {
@@ -121,8 +118,7 @@ pipeline {
                     sh "git push https://$USERNAME:$PASSWORD@${GitUrl} --tags"
                 }
             }
-        }
-		
+        }	
         stage('Remove Image Tags') {					
             steps {	
 			    withCredentials([string(credentialsId: "GitLabToken", variable: "GitLabToken")]) {					
@@ -131,7 +127,6 @@ pipeline {
             }
         }
     }
-
     post {
         always {
             step([$class: 'MSTestPublisher', testResultsFile:"**/*.trx", failOnError: false, keepLongStdio: true])
