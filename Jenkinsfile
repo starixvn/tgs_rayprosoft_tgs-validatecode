@@ -1,7 +1,7 @@
 def message = "";
 pipeline {
     agent any	
-	environment {
+    environment {
         BuildConfiguration='Debug'
         ImageName="registry.gitlab.com/rayprosoft/turnkey-gaming-system/validatecode-api"
         GitUrl = "gitlab.com/rayprosoft/tgs-validatecode.git"
@@ -42,6 +42,8 @@ pipeline {
                         message += "\nBranch: ${env.GIT_BRANCH}" 
                         message += "\nTag: ${env.TAG}"
                         message += "\nEnv: ${env.kube_ns}"
+                        env.commit_url = "${env.GIT_URL}".replace(".git","/-/commit/") + "${env.GIT_COMMIT}"
+                        message += "\n Commit: ${env.commit_url}"
                     }
 				}
                 sh "echo tag: $TAG"
@@ -106,7 +108,7 @@ pipeline {
                 }
             }
         }	
-        stage('Add Tag') {
+        stage('Add Tag on Prod') {
             when {
                 expression {
                     return env.kube_ns == 'prod';
