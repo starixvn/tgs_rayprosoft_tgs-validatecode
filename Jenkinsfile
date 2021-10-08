@@ -93,16 +93,16 @@ pipeline {
         stage('Deploy validatecode-api') {
             steps {
                 withKubeConfig([credentialsId: env.k8s_config]) {
-                    withCredentials([string(credentialsId: "tgs-${kube_ns}-connectionstring", variable: "connestring")]) {
+                    withCredentials([string(credentialsId: "tgs-${kube_ns}-connectionstring", variable: "tgs_tgs")]) {
                         sh '''
                             helm template deployment/k8s/validatecode-api \
                                 --set image.tag=${TAG} \
-                                --set connectionStrings.tgs="${connestring}" \
+                                --set connectionStrings.tgs="$tgs_tgs" \
                                 --set connectionStrings.redis="$tgs_redis" \
 
                             helm template deployment/k8s/validatecode-api \
                                 --set image.tag=${TAG} \
-                                --set connectionStrings.tgs="${connestring}" \
+                                --set connectionStrings.tgs="$tgs_tgs" \
                                 --set connectionStrings.redis="$tgs_redis" \
                             | kubectl -n ${kube_ns} apply -f -
                         '''
