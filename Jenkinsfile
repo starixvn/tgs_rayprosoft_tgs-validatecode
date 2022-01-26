@@ -115,7 +115,7 @@ pipeline {
                 withKubeConfig([credentialsId: env.k8s_config]) {
                     withCredentials([string(credentialsId: "tgs-${kube_ns}-connectionstring", variable: "tgs_tgs")]) {
 
-                        sh "echo request_memory: ${env.request_memory}"
+                        sh '${env.request_memory}'
 
                         sh '''
                             helm template deployment/k8s/validatecode-api \
