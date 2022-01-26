@@ -68,7 +68,7 @@ pipeline {
                     }
 				}
                 sh "echo tag: $TAG"
-                sh "echo request_memory: ${env.request_memory"
+                sh "echo request_memory: ${env.request_memory}"
             }
         }
         stage('Build') {
