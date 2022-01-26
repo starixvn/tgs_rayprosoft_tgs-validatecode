@@ -114,12 +114,15 @@ pipeline {
             steps {
                 withKubeConfig([credentialsId: env.k8s_config]) {
                     withCredentials([string(credentialsId: "tgs-${kube_ns}-connectionstring", variable: "tgs_tgs")]) {
+
+                        sh "echo request_memory: ${env.request_memory}"
+
                         sh '''
                             helm template deployment/k8s/validatecode-api \
                                 --set image.tag=${TAG} \
                                 --set connectionStrings.tgs="$tgs_tgs" \
                                 --set connectionStrings.redis="$tgs_redis" \
-                                --set resources.requests.cpu=${env.request_memory} \
+                                --set resources.requests.cpu=${env.request_cpu} \
                         '''
                         sh '''
                             helm template deployment/k8s/validatecode-api \
