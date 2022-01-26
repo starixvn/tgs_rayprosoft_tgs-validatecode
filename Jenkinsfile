@@ -17,14 +17,26 @@ pipeline {
                         case ['main', 'origin/main']:
                             env.kube_ns = "prod";
                             env.k8s_config = 'stag-k8s-config';
+                            env.cpu_request = "5m"
+                            env.mem_request = "100Mi"
+                            env.cpu_limit = "50m"
+                            env.mem_limit = "500Mi"
                             break;
                         case ['release', 'origin/release']:
                             env.kube_ns = "staging";
                             env.k8s_config = 'stag-k8s-config';
+                            env.cpu_request = "5m"
+                            env.mem_request = "100Mi"
+                            env.cpu_limit = "50m"
+                            env.mem_limit = "500Mi"
                             break;
                         default:
                             env.kube_ns = "dev";
-                            env.k8s_config = 'k8s-kube-config' 
+                            env.k8s_config = 'k8s-kube-config'
+                            env.cpu_request = "5m"
+                            env.mem_request = "100Mi"
+                            env.cpu_limit = "50m"
+                            env.mem_limit = "500Mi"
                             break;
                     }
                 }
@@ -75,21 +87,19 @@ pipeline {
                 sh 'docker push $ImageName:${TAG}'
             }
         }
-        //stage('deploy') {
-        //    when {
-        //        expression {
-        //            return env.kube_ns != 'dev';
-        //        }
-        //    }
-
-        //    steps {
-        //        script {
-        //             input message: 'ready to go?', ok: 'yes';
-        //        }
-                
-        //        sh "echo start deploy"
-        //    }
-        //}
+        stage('deploy') {
+            when {
+                expression {
+                    return env.kube_ns == 'prod';
+                }
+            }
+            steps {
+                script {
+                     input message: 'ready to go?', ok: 'yes';
+                }       
+                sh "echo start deploy"
+            }
+        }
         stage('Deploy validatecode-api') {
             steps {
                 withKubeConfig([credentialsId: env.k8s_config]) {
@@ -99,11 +109,19 @@ pipeline {
                                 --set image.tag=${TAG} \
                                 --set connectionStrings.tgs="$tgs_tgs" \
                                 --set connectionStrings.redis="$tgs_redis" \
+                                --set resources.requests.cpu="${env.cpu_request}" \
+                                --set resources.requests.memory="${env.mem_request}" \
+                                --set resources.limits.cpu="${env.cpu_limit}" \
+                                --set resources.limits.memory="${env.mem_limit}" \
 
                             helm template deployment/k8s/validatecode-api \
                                 --set image.tag=${TAG} \
                                 --set connectionStrings.tgs="$tgs_tgs" \
                                 --set connectionStrings.redis="$tgs_redis" \
+                                --set resources.requests.cpu="${env.cpu_request}" \
+                                --set resources.requests.memory="${env.mem_request}" \
+                                --set resources.limits.cpu="${env.cpu_limit}" \
+                                --set resources.limits.memory="${env.mem_limit}" \
                             | kubectl -n ${kube_ns} apply -f -
                         '''
                     }
