@@ -21,9 +21,9 @@ pipeline {
                             env.request_memory = "100Mi"
                             env.limit_cpu = "50m"
                             env.limit_memory = "500Mi"
-                            env.autoscaling_enabled = "true"
-                            env.targetCPUUtilizationPercentage = "800"
-                            env.targetMemoryUtilizationPercentage = "400"
+                            env.autoscaling_enabled = true
+                            env.targetCPUUtilizationPercentage = 800
+                            env.targetMemoryUtilizationPercentage = 400
                             break;
                         case ['release', 'origin/release']:
                             env.kube_ns = "staging";
@@ -43,9 +43,9 @@ pipeline {
                             env.request_memory = "100Mi"
                             env.limit_cpu = "50m"
                             env.limit_memory = "500Mi"
-                            env.autoscaling_enabled = "false"
-                            env.targetCPUUtilizationPercentage = "800"
-                            env.targetMemoryUtilizationPercentage = "400"
+                            env.autoscaling_enabled = false
+                            env.targetCPUUtilizationPercentage = 800
+                            env.targetMemoryUtilizationPercentage = 400
                             break;
                     }
                 }
