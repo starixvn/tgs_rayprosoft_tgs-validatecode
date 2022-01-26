@@ -68,6 +68,7 @@ pipeline {
                     }
 				}
                 sh "echo tag: $TAG"
+                sh "echo request_memory: ${env.request_memory"
             }
         }
         stage('Build') {
@@ -118,7 +119,7 @@ pipeline {
                                 --set image.tag=${TAG} \
                                 --set connectionStrings.tgs="$tgs_tgs" \
                                 --set connectionStrings.redis="$tgs_redis" \
-                                --set resources.requests.cpu="${env.request_cpu}" \
+                                --set resources.requests.cpu=${env.request_cpu} \
                         '''
                         sh '''
                             helm template deployment/k8s/validatecode-api \
