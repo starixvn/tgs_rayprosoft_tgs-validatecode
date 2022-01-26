@@ -120,12 +120,25 @@ pipeline {
                                 --set connectionStrings.tgs="$tgs_tgs" \
                                 --set connectionStrings.redis="$tgs_redis" \
                                 --set resources.requests.cpu=${request_cpu} \
+                                --set resources.requests.memory=${request_memory} \
+                                --set resources.limits.cpu=${limit_cpu} \
+                                --set resources.limits.memory=${limit_memory} \
+                                --set autoscaling.enabled=${autoscaling_enabled} \
+                                --set autoscaling.targetCPUUtilizationPercentage=${targetCPUUtilizationPercentage} \
+                                --set autoscaling.targetMemoryUtilizationPercentage=${targetMemoryUtilizationPercentage} \
                         '''
                         sh '''
                             helm template deployment/k8s/validatecode-api \
                                 --set image.tag=${TAG} \
                                 --set connectionStrings.tgs="$tgs_tgs" \
                                 --set connectionStrings.redis="$tgs_redis" \
+                                --set resources.requests.cpu=${request_cpu} \
+                                --set resources.requests.memory=${request_memory} \
+                                --set resources.limits.cpu=${limit_cpu} \
+                                --set resources.limits.memory=${limit_memory} \
+                                --set autoscaling.enabled=${autoscaling_enabled} \
+                                --set autoscaling.targetCPUUtilizationPercentage=${targetCPUUtilizationPercentage} \
+                                --set autoscaling.targetMemoryUtilizationPercentage=${targetMemoryUtilizationPercentage} \
                             | kubectl -n ${kube_ns} apply -f -
                         '''
                     }
