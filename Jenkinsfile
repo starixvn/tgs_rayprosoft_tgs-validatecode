@@ -118,7 +118,13 @@ pipeline {
                                 --set image.tag=${TAG} \
                                 --set connectionStrings.tgs="$tgs_tgs" \
                                 --set connectionStrings.redis="$tgs_redis" \
-                                --set resources.requests.cpu=100m \
+                                --set resources.requests.cpu=${env.request_cpu} \
+                                --set resources.requests.memory=${env.request_memory} \
+                                --set resources.limits.cpu=${env.limit_cpu} \
+                                --set resources.limits.memory=${env.limit_memory} \
+                                --set autoscaling.enabled=${env.autoscaling_enabled} \
+                                --set autoscaling.targetCPUUtilizationPercentage=${env.targetCPUUtilizationPercentage} \
+                                --set autoscaling.targetMemoryUtilizationPercentage=${env.targetMemoryUtilizationPercentage} \
                         '''
                         sh '''
 
@@ -126,6 +132,13 @@ pipeline {
                                 --set image.tag=${TAG} \
                                 --set connectionStrings.tgs="$tgs_tgs" \
                                 --set connectionStrings.redis="$tgs_redis" \
+                                --set resources.requests.cpu=${env.request_cpu} \
+                                --set resources.requests.memory=${env.request_memory} \
+                                --set resources.limits.cpu=${env.limit_cpu} \
+                                --set resources.limits.memory=${env.limit_memory} \
+                                --set autoscaling.enabled=${env.autoscaling_enabled} \
+                                --set autoscaling.targetCPUUtilizationPercentage=${env.targetCPUUtilizationPercentage} \
+                                --set autoscaling.targetMemoryUtilizationPercentage=${env.targetMemoryUtilizationPercentage} \
                             | kubectl -n ${kube_ns} apply -f -
                         '''
                     }
