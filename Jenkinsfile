@@ -121,7 +121,6 @@ pipeline {
                                 --set resources.requests.cpu="${env.request_cpu}" \
                         '''
                         sh '''
-
                             helm template deployment/k8s/validatecode-api \
                                 --set image.tag=${TAG} \
                                 --set connectionStrings.tgs="$tgs_tgs" \
