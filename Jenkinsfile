@@ -17,26 +17,35 @@ pipeline {
                         case ['main', 'origin/main']:
                             env.kube_ns = "prod";
                             env.k8s_config = 'stag-k8s-config';
-                            env.cpu_request = "5m"
-                            env.mem_request = "100Mi"
-                            env.cpu_limit = "50m"
-                            env.mem_limit = "500Mi"
+                            env.request_cpu = "5m"
+                            env.request_memory = "100Mi"
+                            env.limit_cpu = "50m"
+                            env.limit_memory = "500Mi"
+                            env.autoscaling_enabled = true
+                            env.targetCPUUtilizationPercentage = 800
+                            env.targetMemoryUtilizationPercentage = 400
                             break;
                         case ['release', 'origin/release']:
                             env.kube_ns = "staging";
                             env.k8s_config = 'stag-k8s-config';
-                            env.cpu_request = "5m"
-                            env.mem_request = "100Mi"
-                            env.cpu_limit = "50m"
-                            env.mem_limit = "500Mi"
+                            env.request_cpu = "5m"
+                            env.request_memory = "100Mi"
+                            env.limit_cpu = "50m"
+                            env.limit_memory = "500Mi"
+                            env.autoscaling_enabled = false
+                            env.targetCPUUtilizationPercentage = 800
+                            env.targetMemoryUtilizationPercentage = 400
                             break;
                         default:
                             env.kube_ns = "dev";
                             env.k8s_config = 'k8s-kube-config'
-                            env.cpu_request = "5m"
-                            env.mem_request = "100Mi"
-                            env.cpu_limit = "50m"
-                            env.mem_limit = "500Mi"
+                            env.request_cpu = "5m"
+                            env.request_memory = "100Mi"
+                            env.limit_cpu = "50m"
+                            env.limit_memory = "500Mi"
+                            env.autoscaling_enabled = true
+                            env.targetCPUUtilizationPercentage = 800
+                            env.targetMemoryUtilizationPercentage = 400
                             break;
                     }
                 }
@@ -109,19 +118,24 @@ pipeline {
                                 --set image.tag=${TAG} \
                                 --set connectionStrings.tgs="$tgs_tgs" \
                                 --set connectionStrings.redis="$tgs_redis" \
-                                --set resources.requests.cpu="${env.cpu_request}" \
-                                --set resources.requests.memory="${env.mem_request}" \
-                                --set resources.limits.cpu="${env.cpu_limit}" \
-                                --set resources.limits.memory="${env.mem_limit}" \
+                                --set resources.requests.cpu="${env.request_cpu}" \
+                                --set resources.requests.memory="${env.request_memory}" \
+                                --set resources.limits.cpu="${env.limit_cpu}" \
+                                --set resources.limits.memory="${env.limit_memory}" \
+                                --set autoscaling.enabled="${env.autoscaling_enabled}" \
+                                --set autoscaling.targetCPUUtilizationPercentage="${env.targetCPUUtilizationPercentage}" \
+                                --set autoscaling.targetMemoryUtilizationPercentage="${env.targetMemoryUtilizationPercentage}" \
 
                             helm template deployment/k8s/validatecode-api \
                                 --set image.tag=${TAG} \
                                 --set connectionStrings.tgs="$tgs_tgs" \
                                 --set connectionStrings.redis="$tgs_redis" \
-                                --set resources.requests.cpu="${env.cpu_request}" \
-                                --set resources.requests.memory="${env.mem_request}" \
-                                --set resources.limits.cpu="${env.cpu_limit}" \
-                                --set resources.limits.memory="${env.mem_limit}" \
+                                --set resources.requests.cpu="${env.request_cpu}" \
+                                --set resources.requests.memory="${env.request_memory}" \
+                                --set resources.limits.cpu="${env.limit_cpu}" \
+                                --set resources.limits.memory="${env.limit_memory}" \
+                                --set autoscaling.targetCPUUtilizationPercentage="${env.targetCPUUtilizationPercentage}" \
+                                --set autoscaling.targetMemoryUtilizationPercentage="${env.targetMemoryUtilizationPercentage}" \
                             | kubectl -n ${kube_ns} apply -f -
                         '''
                     }
