@@ -43,7 +43,7 @@ pipeline {
                             env.request_memory = "100Mi"
                             env.limit_cpu = "50m"
                             env.limit_memory = "500Mi"
-                            env.autoscaling_enabled = false
+                            env.autoscaling_enabled = true
                             env.targetCPUUtilizationPercentage = 800
                             env.targetMemoryUtilizationPercentage = 400
                             break;
