@@ -1,3 +1,4 @@
+@Library('global-shared-library') _
 def message = "";
 pipeline {
     agent any	
@@ -24,7 +25,7 @@ pipeline {
                             break;
                         default:
                             env.kube_ns = "dev";
-                            env.k8s_config = 'k8s-kube-config' 
+                            env.k8s_config = 'k8s-kube-config'
                             break;
                     }
                 }
@@ -75,37 +76,50 @@ pipeline {
                 sh 'docker push $ImageName:${TAG}'
             }
         }
-        //stage('deploy') {
-        //    when {
-        //        expression {
-        //            return env.kube_ns != 'dev';
-        //        }
-        //    }
-
-        //    steps {
-        //        script {
-        //             input message: 'ready to go?', ok: 'yes';
-        //        }
-                
-        //        sh "echo start deploy"
-        //    }
-        //}
+        stage('deploy') {
+            when {
+                expression {
+                    return env.kube_ns == 'prod';
+                }
+            }
+            steps {
+                script {
+                     input message: 'ready to go?', ok: 'yes';
+                }       
+                sh "echo start deploy"
+            }
+        }
         stage('Deploy validatecode-api') {
             steps {
-                withKubeConfig([credentialsId: env.k8s_config]) {
-                    withCredentials([string(credentialsId: "tgs-${kube_ns}-connectionstring", variable: "tgs_tgs")]) {
-                        sh '''
-                            helm template deployment/k8s/validatecode-api \
-                                --set image.tag=${TAG} \
-                                --set connectionStrings.tgs="$tgs_tgs" \
-                                --set connectionStrings.redis="$tgs_redis" \
+                script {
+                    withKubeConfig([credentialsId: env.k8s_config]) {
+                        
+                        def resources = getResources(env.k8s_config, env.kube_ns, "validatecode-api")
+                        println resources
 
-                            helm template deployment/k8s/validatecode-api \
-                                --set image.tag=${TAG} \
-                                --set connectionStrings.tgs="$tgs_tgs" \
-                                --set connectionStrings.redis="$tgs_redis" \
-                            | kubectl -n ${kube_ns} apply -f -
-                        '''
+                        withCredentials([string(credentialsId: "tgs-${kube_ns}-connectionstring", variable: "tgs_tgs")]) {
+                            sh """
+                                cat << EOF | yq e -P | helm template deployment/k8s/validatecode-api \
+                                    --set image.tag=${TAG} \
+                                    --set connectionStrings.tgs="$tgs_tgs" \
+                                    --set connectionStrings.redis="$tgs_redis" \
+                                    -f -
+                                    {
+                                        "resources": $resources
+                                    }
+                            """
+                            sh """
+                                cat << EOF | yq e -P | helm template deployment/k8s/validatecode-api \
+                                    --set image.tag=${TAG} \
+                                    --set connectionStrings.tgs="$tgs_tgs" \
+                                    --set connectionStrings.redis="$tgs_redis" \
+                                    -f - \
+                                | kubectl -n ${kube_ns} apply -f -
+                                {
+                                    "resources": $resources
+                                }
+                            """
+                        }
                     }
                 }
             }
@@ -123,13 +137,13 @@ pipeline {
                 }
             }
         }	
-        stage('Remove Image Tags') {					
-            steps {	
-			    withCredentials([string(credentialsId: "GitLabToken", variable: "GitLabToken")]) {					
-                    sh "curl --request DELETE --data \'name_regex_delete=.*\' --data \'keep_n=10\' --header \'PRIVATE-TOKEN: ${GitLabToken}\' ${ImageTagUrl}"
-                }
-            }
-        }
+        //stage('Remove Image Tags') {					
+        //    steps {	
+		//	    withCredentials([string(credentialsId: "GitLabToken", variable: "GitLabToken")]) {					
+        //            sh "curl --request DELETE --data \'name_regex_delete=.*\' --data \'keep_n=10\' --header \'PRIVATE-TOKEN: ${GitLabToken}\' ${ImageTagUrl}"
+        //        }
+        //    }
+        //}
     }
     post {
         always {
