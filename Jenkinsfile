@@ -17,35 +17,14 @@ pipeline {
                         case ['main', 'origin/main']:
                             env.kube_ns = "prod";
                             env.k8s_config = 'stag-k8s-config';
-                            env.request_cpu = "5m"
-                            env.request_memory = "100Mi"
-                            env.limit_cpu = "50m"
-                            env.limit_memory = "500Mi"
-                            env.autoscaling_enabled = true
-                            env.targetCPUUtilizationPercentage = 800
-                            env.targetMemoryUtilizationPercentage = 400
                             break;
                         case ['release', 'origin/release']:
                             env.kube_ns = "staging";
                             env.k8s_config = 'stag-k8s-config';
-                            env.request_cpu = "5m"
-                            env.request_memory = "100Mi"
-                            env.limit_cpu = "50m"
-                            env.limit_memory = "500Mi"
-                            env.autoscaling_enabled = "false"
-                            env.targetCPUUtilizationPercentage = "800"
-                            env.targetMemoryUtilizationPercentage = "400"
                             break;
                         default:
                             env.kube_ns = "dev";
                             env.k8s_config = 'k8s-kube-config'
-                            env.request_cpu = "5m"
-                            env.request_memory = "100Mi"
-                            env.limit_cpu = "50m"
-                            env.limit_memory = "500Mi"
-                            env.autoscaling_enabled = true
-                            env.targetCPUUtilizationPercentage = 800
-                            env.targetMemoryUtilizationPercentage = 400
                             break;
                     }
                 }
@@ -111,35 +90,34 @@ pipeline {
         }
         stage('Deploy validatecode-api') {
             steps {
-                withKubeConfig([credentialsId: env.k8s_config]) {
-                    withCredentials([string(credentialsId: "tgs-${kube_ns}-connectionstring", variable: "tgs_tgs")]) {
-                        sh '''
-                            helm template deployment/k8s/validatecode-api \
-                                --set image.tag=${TAG} \
-                                --set connectionStrings.tgs="$tgs_tgs" \
-                                --set connectionStrings.redis="$tgs_redis" \
-                                --set resources.requests.cpu=${request_cpu} \
-                                --set resources.requests.memory=${request_memory} \
-                                --set resources.limits.cpu=${limit_cpu} \
-                                --set resources.limits.memory=${limit_memory} \
-                                --set autoscaling.enabled=${autoscaling_enabled} \
-                                --set autoscaling.targetCPUUtilizationPercentage=${targetCPUUtilizationPercentage} \
-                                --set autoscaling.targetMemoryUtilizationPercentage=${targetMemoryUtilizationPercentage} \
-                        '''
-                        sh '''
-                            helm template deployment/k8s/validatecode-api \
-                                --set image.tag=${TAG} \
-                                --set connectionStrings.tgs="$tgs_tgs" \
-                                --set connectionStrings.redis="$tgs_redis" \
-                                --set resources.requests.cpu=${request_cpu} \
-                                --set resources.requests.memory=${request_memory} \
-                                --set resources.limits.cpu=${limit_cpu} \
-                                --set resources.limits.memory=${limit_memory} \
-                                --set autoscaling.enabled=${autoscaling_enabled} \
-                                --set autoscaling.targetCPUUtilizationPercentage=${targetCPUUtilizationPercentage} \
-                                --set autoscaling.targetMemoryUtilizationPercentage=${targetMemoryUtilizationPercentage} \
-                            | kubectl -n ${kube_ns} apply -f -
-                        '''
+                script {
+                    def resources = getResources(env.k8s_config, env.kube_ns, "payment-umpay")
+                    println resources
+
+                    withKubeConfig([credentialsId: env.k8s_config]) {
+                        withCredentials([string(credentialsId: "tgs-${kube_ns}-connectionstring", variable: "tgs_tgs")]) {
+                            sh """
+                                cat << EOF | yq e -P | helm template deployment/k8s/validatecode-api \
+                                    --set image.tag=${TAG} \
+                                    --set connectionStrings.tgs="$tgs_tgs" \
+                                    --set connectionStrings.redis="$tgs_redis" \
+                                    -f -
+                                    {
+                                        "resources": $resources
+                                    }
+                            """
+                            sh """
+                                helm template deployment/k8s/validatecode-api \
+                                    --set image.tag=${TAG} \
+                                    --set connectionStrings.tgs=$tgs_tgs \
+                                    --set connectionStrings.redis=$tgs_redis \
+                                    -f - \
+                                | kubectl -n ${kube_ns} apply -f -
+                                {
+                                    "resources": $resources
+                                }
+                            """
+                        }
                     }
                 }
             }
