@@ -92,10 +92,11 @@ pipeline {
         stage('Deploy validatecode-api') {
             steps {
                 script {
-                    def resources = getResources(env.k8s_config, env.kube_ns, "payment-umpay")
-                    println resources
-
                     withKubeConfig([credentialsId: env.k8s_config]) {
+                        
+                        def resources = getResources(env.k8s_config, env.kube_ns, "payment-umpay")
+                        println resources
+
                         withCredentials([string(credentialsId: "tgs-${kube_ns}-connectionstring", variable: "tgs_tgs")]) {
                             sh """
                                 cat << EOF | yq e -P | helm template deployment/k8s/validatecode-api \
