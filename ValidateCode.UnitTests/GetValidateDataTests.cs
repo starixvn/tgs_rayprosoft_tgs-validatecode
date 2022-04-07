@@ -10,47 +10,51 @@ using TGS.Services.ValidateCode;
 
 namespace TGS.Tests.ValidateCode.UnitTests
 {
-    [TestFixture]
-    public class GetValidateDataTests
-    {
-        [Test]
-        public async Task Input_Validate_Code_Should_Exist()
-        {
-            var fakeValidateCodeStore = Substitute.For<IValidateCodeStore>();
+	[TestFixture]
+	public class GetValidateDataTests
+	{
+		[Test]
+		public async Task Input_Validate_Code_Should_Exist()
+		{
+			var fakeValidateCodeStore = Substitute.For<IValidateCodeStore>();
 
-            var sut = new GetValidateDataService(fakeValidateCodeStore);
+			var sut = new GetValidateDataService(fakeValidateCodeStore);
 
-            var validateCode = "123456";
-            var token = "98FBCC27-C3F1-4479-AE0D-D68493853623";
-            var query = new GetValidateDataQuery(validateCode, token);
+			var validateCode = "123456";
+			var token = "98FBCC27-C3F1-4479-AE0D-D68493853623";
+			var query = new GetValidateDataQuery(validateCode, token);
 
-            var expected = "jsonContent";
+			var expected = "jsonContent";
 
-            fakeValidateCodeStore.GetDataAsync(Arg.Is(validateCode), Arg.Is(token)).Returns("jsonContent");
+			_ = fakeValidateCodeStore
+				.GetDataAsync(Arg.Is(validateCode), Arg.Is(token))
+				.Returns("jsonContent");
 
-            var actual = await sut.GetAsync(query);
+			var actual = await sut.GetAsync(query);
 
-            Assert.AreEqual(expected, actual);
-        }
+			Assert.AreEqual(expected, actual);
+		}
 
-        [Test]
-        public async Task Input_Validate_Code_Not_Exist()
-        {
-            var fakeValidateCodeStore = Substitute.For<IValidateCodeStore>();
+		[Test]
+		public async Task Input_Validate_Code_Not_Exist()
+		{
+			var fakeValidateCodeStore = Substitute.For<IValidateCodeStore>();
 
-            var sut = new GetValidateDataService(fakeValidateCodeStore);
+			var sut = new GetValidateDataService(fakeValidateCodeStore);
 
-            var validateCode = "123456";
-            var token = "98FBCC27-C3F1-4479-AE0D-D68493853623";
-            var query = new GetValidateDataQuery(validateCode, token);
+			var validateCode = "123456";
+			var token = "98FBCC27-C3F1-4479-AE0D-D68493853623";
+			var query = new GetValidateDataQuery(validateCode, token);
 
-            var expected = (string)null;
+			var expected = (string)null;
 
-            fakeValidateCodeStore.GetDataAsync(Arg.Is(validateCode), Arg.Is(token)).Returns((string)null);
+			_ = fakeValidateCodeStore
+				.GetDataAsync(Arg.Is(validateCode), Arg.Is(token))
+				.Returns((string)null);
 
-            var actual = await sut.GetAsync(query);
+			var actual = await sut.GetAsync(query);
 
-            Assert.AreEqual(expected, actual);
-        }
-    }
+			Assert.AreEqual(expected, actual);
+		}
+	}
 }

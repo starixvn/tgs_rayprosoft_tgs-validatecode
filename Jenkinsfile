@@ -4,9 +4,7 @@ pipeline {
     agent any	
     environment {
         BuildConfiguration='Debug'
-        ImageName="registry.gitlab.com/rayprosoft/turnkey-gaming-system/validatecode-api"
-        GitUrl = "gitlab.com/rayprosoft/tgs-validatecode.git"
-        ImageTagUrl = "https://gitlab.com/api/v4/projects/20478010/registry/repositories/2154529/tags"
+        ImageName="harbor.rpgp.cc/tgs/validatecode-api"
     }
     stages {
         stage('Prepare') {
@@ -43,7 +41,8 @@ pipeline {
                         message += "\nBranch: ${env.GIT_BRANCH}" 
                         message += "\nTag: ${env.TAG}"
                         message += "\nEnv: ${env.kube_ns}"
-                        env.commit_url = "${env.GIT_URL}".replace(".git","/-/commit/") + "${env.GIT_COMMIT}"
+                        env.commit_url = "${env.GIT_URL}".replace("git@gitlab.com:","https://gitlab.com/")
+                            .replace(".git","/-/commit/") + "${env.GIT_COMMIT}"
                         message += "\n Commit: ${env.commit_url}"
                     }
 				}
@@ -63,7 +62,7 @@ pipeline {
         stage('Push packages') {
 	        steps {
                 sh 'dotnet pack -c $BuildConfiguration "ValidateCodeClient/ValidateCodeClient.csproj" --no-build'
-                sh 'dotnet nuget push "ValidateCodeClient/bin/$BuildConfiguration/*.nupkg" --source "raypro" --skip-duplicate'
+                sh 'dotnet nuget push "ValidateCodeClient/bin/$BuildConfiguration/*.nupkg" -s "raypro-baget" -k admin --skip-duplicate'
             }
         }
         stage('Build Docker Image') {
@@ -95,31 +94,36 @@ pipeline {
                     withKubeConfig([credentialsId: env.k8s_config]) {
                         
                         def resources = getResources(env.k8s_config, env.kube_ns, "validatecode-api")
-                        println resources
+                        def dedicated = getTgsSettings(env.k8s_config, env.kube_ns, "dedicated")
+                        def node_selector = getTgsSettings(env.k8s_config, env.kube_ns, "node-selector")
 
-                        withCredentials([string(credentialsId: "tgs-${kube_ns}-connectionstring", variable: "tgs_tgs")]) {
-                            sh """
-                                cat << EOF | yq e -P | helm template deployment/k8s/validatecode-api \
-                                    --set image.tag=${TAG} \
-                                    --set connectionStrings.tgs="$tgs_tgs" \
-                                    --set connectionStrings.redis="$tgs_redis" \
-                                    -f -
-                                    {
-                                        "resources": $resources
-                                    }
-                            """
-                            sh """
-                                cat << EOF | yq e -P | helm template deployment/k8s/validatecode-api \
-                                    --set image.tag=${TAG} \
-                                    --set connectionStrings.tgs="$tgs_tgs" \
-                                    --set connectionStrings.redis="$tgs_redis" \
-                                    -f - \
-                                | kubectl -n ${kube_ns} apply -f -
+                        println resources
+                        println dedicated
+                        println node_selector
+
+                        sh """
+                            cat << EOF | yq e -P | helm template deployment/k8s/validatecode-api \
+                                -n ${kube_ns} \
+                                --set image.tag=${TAG} \
+                                -f -
                                 {
+                                    "nodeSelector": $node_selector,
+                                    "tolerations": [$dedicated],
                                     "resources": $resources
                                 }
-                            """
-                        }
+                        """
+                        sh """
+                            cat << EOF | yq e -P | helm template deployment/k8s/validatecode-api \
+                                -n ${kube_ns} \
+                                --set image.tag=${TAG} \
+                                -f - \
+                            | kubectl -n ${kube_ns} apply -f -
+                            {
+                                "nodeSelector": $node_selector,
+                                "tolerations": [$dedicated],
+                                "resources": $resources
+                            }
+                        """
                     }
                 }
             }
@@ -137,13 +141,6 @@ pipeline {
                 }
             }
         }	
-        //stage('Remove Image Tags') {					
-        //    steps {	
-		//	    withCredentials([string(credentialsId: "GitLabToken", variable: "GitLabToken")]) {					
-        //            sh "curl --request DELETE --data \'name_regex_delete=.*\' --data \'keep_n=10\' --header \'PRIVATE-TOKEN: ${GitLabToken}\' ${ImageTagUrl}"
-        //        }
-        //    }
-        //}
     }
     post {
         always {
@@ -155,19 +152,5 @@ pipeline {
         failure {
             sendTelegram("<b>Failed Pipeline:</b> ${currentBuild.fullDisplayName} Something is wrong with ${env.BUILD_URL}/console\n${currentBuild.getBuildCauses()[0].shortDescription}\n")
         }
-    }
-}
-
-def sendTelegram(message) {
-    def encodedMessage = URLEncoder.encode(message, "UTF-8")
-
-    withCredentials([string(credentialsId: "telegramToken", variable: "TOKEN"), string(credentialsId: "telegramChatId", variable: "CHAT_ID")]) {
-
-        response = httpRequest (consoleLogResponseBody: true,
-                contentType: 'APPLICATION_JSON',
-                httpMode: 'GET',
-                url: "https://api.telegram.org/bot${TOKEN}/sendMessage?text=${encodedMessage}&chat_id=${CHAT_ID}",
-                validResponseCodes: '200')
-        return response
     }
 }

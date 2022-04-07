@@ -8,9 +8,9 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static ValidateCodeConfiguration AddValidateCode(this IServiceCollection services)
         {
-            services.RegisterAllServiceUtilityTypes(
-                typeof(ValidateCodeServiceCollectionExtensions).Assembly,
-                ServiceLifetime.Transient);
+			_ = services.RegisterAllServiceUtilityTypes(
+				typeof(ValidateCodeServiceCollectionExtensions).Assembly,
+				ServiceLifetime.Transient);
 
             var configuration = new ValidateCodeConfiguration(services);
 

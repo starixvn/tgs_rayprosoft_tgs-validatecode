@@ -18,21 +18,20 @@ namespace TGS.Apis.ValidateCodeApi
 		{
 			if (env.IsDevelopment())
 			{
-				app.UseDeveloperExceptionPage();
+				_ = app.UseDeveloperExceptionPage();
 			}
 
-			app.UseSwagger();
-			app.UseSwaggerUI(
-				options => options.SwaggerEndpoint(
-					"/swagger/v1/swagger.json",
-					"TGS ValidateCode API"));
+			_ = app.UseSwagger()
+				.UseSwaggerUI(
+					options => options.SwaggerEndpoint(
+						"/swagger/v1/swagger.json",
+						"TGS ValidateCode API"))
+				.UseRouting();
 
-			app.UseRouting();
-
-			app.UseEndpoints(endpoints =>
+			_ = app.UseEndpoints(endpoints =>
 			{
-				endpoints.MapControllers();
-				endpoints.MapHealthChecks("/health");
+				_ = endpoints.MapControllers();
+				_ = endpoints.MapHealthChecks("/health");
 			});
 		}
 
@@ -40,7 +39,7 @@ namespace TGS.Apis.ValidateCodeApi
 		// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services
+			_ = services
 				.AddValidateCode()
 				.UseRedis((options, sp) =>
 				{
@@ -49,11 +48,11 @@ namespace TGS.Apis.ValidateCodeApi
 					options.ConnectionString = config.GetConnectionString("RedisConfigurationString");
 				});
 
-			services
+			_ = services
 				.AddControllers()
 				.AddNewtonsoftJson();
 
-			services.AddSwaggerGen(c =>
+			_ = services.AddSwaggerGen(c =>
 			{
 				c.SwaggerDoc(
 					"v1",
@@ -68,7 +67,7 @@ namespace TGS.Apis.ValidateCodeApi
 					c.IncludeXmlComments(path);
 			});
 
-			services.AddHealthChecks();
+			_ = services.AddHealthChecks();
 		}
 	}
 }

@@ -17,7 +17,6 @@ namespace TGS.ValidateCode.IntegrationTests
 	public class SaveValidateCodeDataToServiceSteps
 	{
 		private readonly ScenarioContext _context;
-		private List<string> _logs = new List<string>();
 		private IValidateCodeServiceClient _validateCodeServiceClient;
 
 		public SaveValidateCodeDataToServiceSteps(ScenarioContext context)
@@ -30,28 +29,23 @@ namespace TGS.ValidateCode.IntegrationTests
 		public void BeforeScenario()
 		{
 			var opApiHost = Host.CreateDefaultBuilder(Array.Empty<string>())
-				.ConfigureWebHostDefaults(webBuilder =>
-				{
-					webBuilder
-						.UseStartup<Apis.ValidateCodeApi.Startup>()
-						.UseTestServer()
-						.ConfigureTestServices(services =>
+				.ConfigureWebHostDefaults(webBuilder => webBuilder
+					.UseStartup<Apis.ValidateCodeApi.Startup>()
+					.UseTestServer()
+					.ConfigureTestServices(services => services
+						.AddSingleton<IValidateCodeStore>(sp =>
 						{
-							services.AddSingleton<IValidateCodeStore>(sp =>
-							{
-								var fakeStore = Substitute.For<IValidateCodeStore>();
+							var fakeStore = Substitute.For<IValidateCodeStore>();
 
-								fakeStore
-									.SaveDataAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())
-									.Returns(true);
+							_ = fakeStore
+								.SaveDataAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())
+								.Returns(true);
 
-								return fakeStore;
-							});
-						});
-				})
+							return fakeStore;
+						})))
 				.Build();
 
-			opApiHost.StartAsync();
+			_ = opApiHost.StartAsync();
 
 			_validateCodeServiceClient = new ValidateCodeServiceClient(opApiHost.GetTestClient());
 		}
@@ -61,28 +55,23 @@ namespace TGS.ValidateCode.IntegrationTests
 		public void BeforeScenarioSetupFailEnv()
 		{
 			var opApiHost = Host.CreateDefaultBuilder(Array.Empty<string>())
-				.ConfigureWebHostDefaults(webBuilder =>
-				{
-					webBuilder
-						.UseStartup<Apis.ValidateCodeApi.Startup>()
-						.UseTestServer()
-						.ConfigureTestServices(services =>
+				.ConfigureWebHostDefaults(webBuilder => webBuilder
+					.UseStartup<Apis.ValidateCodeApi.Startup>()
+					.UseTestServer()
+					.ConfigureTestServices(services => services
+						.AddSingleton<IValidateCodeStore>(sp =>
 						{
-							services.AddSingleton<IValidateCodeStore>(sp =>
-							{
-								var fakeStore = Substitute.For<IValidateCodeStore>();
+							var fakeStore = Substitute.For<IValidateCodeStore>();
 
-								fakeStore
-									.SaveDataAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())
-									.Returns(false);
+							_ = fakeStore
+								.SaveDataAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())
+								.Returns(false);
 
-								return fakeStore;
-							});
-						});
-				})
+							return fakeStore;
+						})))
 				.Build();
 
-			opApiHost.StartAsync();
+			_ = opApiHost.StartAsync();
 
 			_validateCodeServiceClient = new ValidateCodeServiceClient(opApiHost.GetTestClient());
 		}
