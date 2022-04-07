@@ -5,18 +5,20 @@
 replicaCount: 1
 
 image:
-  repository: registry.gitlab.com/rayprosoft/turnkey-gaming-system/validatecode-api
+  repository: harbor.rpgp.cc/tgs/validatecode-api
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "dev"
 
 imagePullSecrets:
-  - name: registry-credentials
+  - name: secret-tgs-harbor
 nameOverride: "validatecode-api"
 fullnameOverride: "validatecode-api"
-namespace: dev
 
-podAnnotations: {}
+podAnnotations:
+  prometheus.io/path: /metrics
+  prometheus.io/port: "52325"
+  prometheus.io/scrape: "true"
 
 podSecurityContext: {}
   # fsGroup: 2000

@@ -11,7 +11,7 @@ namespace TGS.Services.ValidateCode
 			this ValidateCodeConfiguration configuration,
 			Action<RedisOptions, IServiceProvider> configure)
 		{
-			configuration.Services
+			_ = configuration.Services
 				.AddOptions<RedisOptions>()
 				.Configure(configure)
 				.Services

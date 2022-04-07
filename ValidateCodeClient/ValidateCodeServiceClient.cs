@@ -22,10 +22,9 @@ namespace TGS.Services.ValidateCode.Clients
 				.GetAsync($"/validate-code/{validateCode}/{token}")
 				.ConfigureAwait(false);
 
-			if (response.StatusCode != HttpStatusCode.OK)
-				return null;
-
-			return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+			return response.StatusCode != HttpStatusCode.OK 
+				? null 
+				: await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 		}
 
 		public async ValueTask<bool> SaveValidateCodeDataAsync(string validateCode, string token, string content)

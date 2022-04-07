@@ -23,7 +23,7 @@ namespace TGS.Repositories.ValidateCode
 				.StringGetAsync(dataKey)
 				.ConfigureAwait(false);
 
-			await _redisDatabase
+			_ = await _redisDatabase
 				.KeyDeleteAsync(dataKey, flags: CommandFlags.FireAndForget)
 				.ConfigureAwait(false);
 

@@ -10,14 +10,9 @@ namespace TGS.Apis.ValidateCodeApi
 	{
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
-				.ConfigureAppConfiguration(builder =>
-				{
-					builder.AddJsonFile("/config/appsettings.json", true);
-				})
-				.ConfigureWebHostDefaults(webBuilder =>
-				{
-					webBuilder.UseStartup<Startup>();
-				});
+				.ConfigureAppConfiguration(builder => builder
+					.AddJsonFile("/config/appsettings.json", true))
+				.ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>());
 
 		public static void Main(string[] args)
 		{
