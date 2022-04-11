@@ -1,9 +1,6 @@
-﻿using System;
+﻿namespace TGS.Services.ValidateCode.Clients;
 
-namespace TGS.Services.ValidateCode.Clients
+public class ValidateCodeClientOptions
 {
-	public class ValidateCodeClientOptions
-	{
-		public Uri ValidateCodeBaseUrl { get; set; } = new Uri("https://localhost:5001");
-	}
+	public Uri ValidateCodeBaseUrl { get; set; } = new Uri("https://localhost:5001");
 }
