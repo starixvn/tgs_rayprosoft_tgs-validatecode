@@ -1,6 +1,6 @@
 #See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
 EXPOSE 80
 
@@ -15,11 +15,11 @@ COPY ["ValidateCodeRepository/ValidateCodeRepository.csproj", "ValidateCodeRepos
 RUN dotnet restore "ValidateCodeApi/ValidateCodeApi.csproj"
 COPY . .
 WORKDIR "/src/ValidateCodeApi"
-RUN dotnet build "ValidateCodeApi.csproj" -c ${BuildConfiguration} -o /app/build
+RUN dotnet build "ValidateCodeApi.csproj" -c $BuildConfiguration -o /app/build
 
 FROM build AS publish
 ARG BuildConfiguration
-RUN dotnet publish "ValidateCodeApi.csproj" -c ${BuildConfiguration} -o /app/publish
+RUN dotnet publish "ValidateCodeApi.csproj" -c $BuildConfiguration -o /app/publish
 
 FROM base AS final
 WORKDIR /app
