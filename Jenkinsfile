@@ -4,7 +4,7 @@ pipeline {
     agent any	
     environment {
         BuildConfiguration='Debug'
-        ImageName="harbor.rpgp.cc/tgs/validatecode-api"
+        ImageName="pgtgs/validatecode-api"
     }
     stages {
         stage('Prepare') {
