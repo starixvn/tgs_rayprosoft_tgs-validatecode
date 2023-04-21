@@ -1,6 +1,6 @@
-using Microsoft.Extensions.Options;
-using OpenTelemetry.Exporter;
+﻿using FluentdForward.OpenTelemetry.MessagePack;
 using OpenTelemetry.Instrumentation.AspNetCore;
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using TGS.Services.ValidateCode;
@@ -17,10 +17,12 @@ builder.Logging
 		options.ParseStateValues = true;
 		_ = options.AddFluentdForwardExporter(fluentOptions =>
 		{
-			var nodeIp = builder.Configuration.GetValue<string>("NODE_IP");
+			var nodeIp = builder.Configuration.GetValue<string>("NODE_IP")!;
 			fluentOptions.Host = nodeIp;
-			fluentOptions.Tag = builder.Configuration.GetValue<string>("OTEL_SERVICE_NAME");
-			fluentOptions.UseMessagePack();
+			fluentOptions.Tag = builder.Configuration.GetValue<string>("OTEL_SERVICE_NAME")!;
+			fluentOptions.UseMessagePack(LogRecordFormatterResolver.GetResolverInstanceWithExtendInfo(
+				"MachineName",
+				() => Environment.MachineName));
 		});
 	});
 
@@ -30,7 +32,7 @@ builder.Services
 	{
 		var config = sp.GetRequiredService<IConfiguration>();
 
-		options.ConnectionString = config.GetConnectionString("RedisConfigurationString");
+		options.ConnectionString = config.GetConnectionString("RedisConfigurationString")!;
 	});
 
 builder.Services
@@ -38,30 +40,21 @@ builder.Services
 	.AddNewtonsoftJson();
 
 builder.Services
-	.AddSingleton<IConfigureOptions<OtlpExporterOptions>>(
-		sp => new ConfigureNamedOptions<OtlpExporterOptions>(
-			Microsoft.Extensions.Options.Options.DefaultName,
-			exporterOptions =>
-			{
-				var config = sp.GetRequiredService<IConfiguration>();
-				var nodeIp = config.GetValue<string>("NODE_IP");
-
-				if (!string.IsNullOrWhiteSpace(nodeIp))
-					exporterOptions.Endpoint = new Uri($"http://{nodeIp}:4317");
-
-				config.GetSection("Opentelemetry:Tracing").Bind(exporterOptions);
-			}))
-	.AddOpenTelemetryTracing(
-		tracingBuilder => tracingBuilder
-			.SetResourceBuilder(ResourceBuilder.CreateDefault()
-				.AddEnvironmentVariableDetector())
-			.AddSource("Tgs.*")
-			.AddSource("TGS.*")
-			.AddAspNetCoreInstrumentation()
-			.AddHttpClientInstrumentation()
-			.AddRedisInstrumentation()
-			.AddProfileViewExporter()
-			.AddOtlpExporter())
+	.AddOpenTelemetry()
+	.WithTracing(tracingBuilder => tracingBuilder
+		.SetResourceBuilder(ResourceBuilder.CreateDefault()
+			.AddEnvironmentVariableDetector())
+		.AddSource("Tgs.*")
+		.AddSource("TGS.*")
+		.AddAspNetCoreInstrumentation()
+		.AddHttpClientInstrumentation()
+		.AddProfileViewExporter()
+		.AddOtlpExporter())
+	.WithMetrics(meterBuiler => meterBuiler
+		.AddRuntimeInstrumentation()
+		.AddAspNetCoreInstrumentation()
+		.AddOtlpExporter())
+	.Services
 	.Configure<AspNetCoreInstrumentationOptions>(
 		options => options.Filter = httpContext => !httpContext.Request.Path.HasValue
 			|| !httpContext.Request.Path.StartsWithSegments("/swagger")
