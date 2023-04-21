@@ -22,7 +22,7 @@ data:
           insecure: true
       prometheus:
         endpoint: "0.0.0.0:8889"
-        namespace: "tgs_payment_phpgopay"
+        namespace: "tgs"
 
     extensions:
       health_check:
