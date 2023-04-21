@@ -1,32 +1,38 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <RootNamespace>TGS.Apis.ValidateCodeApi</RootNamespace>
-    <UserSecretsId>0579e7f6-536b-472d-a8ee-f7f9876b5806</UserSecretsId>
-    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <GlobalNugetConfig>$(UserProfile)\AppData\Roaming\NuGet\NuGet.Config</GlobalNugetConfig>
-    <GlobalNugetConfig Condition="'$(UserProfile)'==''">$(HOME)/.nuget/NuGet/NuGet.Config</GlobalNugetConfig>
-    <DockerfileBuildArguments>--build-arg "BuildConfiguration=$(Configuration)" --secret id=nuget,src="$(GlobalNugetConfig)"</DockerfileBuildArguments>
-    <DockerfileTag Condition="$(DockerfileTag) == ''">validate-code</DockerfileTag>
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<RootNamespace>TGS.Apis.ValidateCodeApi</RootNamespace>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<DockerfileBuildArguments>--build-arg "BuildConfiguration=$(Configuration)"</DockerfileBuildArguments>
+		<DockerfileTag Condition="$(DockerfileTag) == ''">validate-code</DockerfileTag>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<UserSecretsId>7a1ea70e-dbbe-425c-8362-6df53ca5cbd7</UserSecretsId>
+	</PropertyGroup>
 
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DocumentationFile>obj\ValidateCodeApi.xml</DocumentationFile>
+		<OutputPath>obj\</OutputPath>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>obj\ValidateCodeApi.xml</DocumentationFile>
-    <OutputPath>obj\</OutputPath>
-  </PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="FluentdForward.OpenTelemetry.MessagePack" Version="0.2.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.5" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.18.1" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.4.0" />
+		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.4.0" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc9.1" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc9.1" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.0.0" />
+		<PackageReference Include="ProfileViewer.OpenTelemetry.Exporter" Version="0.2.1" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.8" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.13" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.4" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\ValidateCode.Core\ValidateCode.Core.csproj" />
-    <ProjectReference Include="..\ValidateCodeRepository\ValidateCodeRepository.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\ValidateCode.Core\ValidateCode.Core.csproj" />
+		<ProjectReference Include="..\ValidateCodeRepository\ValidateCodeRepository.csproj" />
+	</ItemGroup>
 
 </Project>

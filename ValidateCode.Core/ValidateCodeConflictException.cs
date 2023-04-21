@@ -1,11 +1,8 @@
-﻿using System;
+﻿namespace TGS.Services.ValidateCode;
 
-namespace TGS.Services.ValidateCode
+public class ValidateCodeConflictException : Exception
 {
-    public class ValidateCodeConflictException : Exception
-    {
-        public ValidateCodeConflictException()
-        {
-        }
-    }
+	public ValidateCodeConflictException()
+	{
+	}
 }

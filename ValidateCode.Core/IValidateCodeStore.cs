@@ -1,11 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿namespace TGS.Services.ValidateCode;
 
-namespace TGS.Services.ValidateCode
+public interface IValidateCodeStore
 {
-    public interface IValidateCodeStore
-    {
-        ValueTask<bool> SaveDataAsync(string validateCode, string token, string content);
+	ValueTask<bool> SaveDataAsync(string validateCode, string token, string content);
 
-        ValueTask<string?> GetDataAsync(string validateCode, string token);
-    }
+	ValueTask<string?> GetDataAsync(string validateCode, string token);
 }

@@ -1,7 +1,6 @@
-﻿namespace TGS.Repositories.ValidateCode
+﻿namespace TGS.Repositories.ValidateCode;
+
+public class RedisOptions
 {
-	public class RedisOptions
-	{
-		public string ConnectionString { get; set; } = "localhost";
-	}
+	public string ConnectionString { get; set; } = "localhost";
 }

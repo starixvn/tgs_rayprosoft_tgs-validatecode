@@ -1,132 +1,110 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text.Json;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.TestHost;
+﻿using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using NSubstitute;
 using NUnit.Framework;
 using TechTalk.SpecFlow;
 using TGS.Services.ValidateCode;
 using TGS.Services.ValidateCode.Clients;
 
-namespace TGS.ValidateCode.IntegrationTests
+namespace TGS.ValidateCode.IntegrationTests;
+
+[Binding]
+public class SaveValidateCodeDataToServiceSteps
 {
-	[Binding]
-	public class SaveValidateCodeDataToServiceSteps
+	private readonly ScenarioContext _context;
+	private IValidateCodeServiceClient _validateCodeServiceClient = default!;
+
+	public SaveValidateCodeDataToServiceSteps(ScenarioContext context)
 	{
-		private readonly ScenarioContext _context;
-		private List<string> _logs = new List<string>();
-		private IValidateCodeServiceClient _validateCodeServiceClient;
+		_context = context;
+	}
 
-		public SaveValidateCodeDataToServiceSteps(ScenarioContext context)
-		{
-			_context = context;
-		}
+	[BeforeScenario]
+	[Scope(Tag = "Success")]
+	public void BeforeScenario()
+	{
+		var testApp = new TestValidateCodeApplication(hostBuilder => hostBuilder
+			.ConfigureServices(services =>
+			{
+				_ = services
+					.AddSingleton(sp =>
+					{
+						var fakeStore = Substitute.For<IValidateCodeStore>();
 
-		[BeforeScenario]
-		[Scope(Tag = "Success")]
-		public void BeforeScenario()
-		{
-			var opApiHost = Host.CreateDefaultBuilder(Array.Empty<string>())
-				.ConfigureWebHostDefaults(webBuilder =>
-				{
-					webBuilder
-						.UseStartup<Apis.ValidateCodeApi.Startup>()
-						.UseTestServer()
-						.ConfigureTestServices(services =>
-						{
-							services.AddSingleton<IValidateCodeStore>(sp =>
-							{
-								var fakeStore = Substitute.For<IValidateCodeStore>();
+						_ = fakeStore
+							.SaveDataAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())
+							.Returns(true);
 
-								fakeStore
-									.SaveDataAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())
-									.Returns(true);
+						return fakeStore;
+					});
+			}));
 
-								return fakeStore;
-							});
-						});
-				})
-				.Build();
+		_validateCodeServiceClient = new ValidateCodeServiceClient(testApp.CreateClient());
+	}
 
-			opApiHost.StartAsync();
+	[BeforeScenario]
+	[Scope(Tag = "Fail")]
+	public void BeforeScenarioSetupFailEnv()
+	{
+		var testApp = new TestValidateCodeApplication(hostBuilder => hostBuilder
+			.ConfigureServices(services =>
+			{
+				_ = services
+					.AddSingleton(sp =>
+					{
+						var fakeStore = Substitute.For<IValidateCodeStore>();
 
-			_validateCodeServiceClient = new ValidateCodeServiceClient(opApiHost.GetTestClient());
-		}
+						_ = fakeStore
+							.SaveDataAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())
+							.Returns(false);
 
-		[BeforeScenario]
-		[Scope(Tag = "Fail")]
-		public void BeforeScenarioSetupFailEnv()
-		{
-			var opApiHost = Host.CreateDefaultBuilder(Array.Empty<string>())
-				.ConfigureWebHostDefaults(webBuilder =>
-				{
-					webBuilder
-						.UseStartup<Apis.ValidateCodeApi.Startup>()
-						.UseTestServer()
-						.ConfigureTestServices(services =>
-						{
-							services.AddSingleton<IValidateCodeStore>(sp =>
-							{
-								var fakeStore = Substitute.For<IValidateCodeStore>();
+						return fakeStore;
+					});
+			}));
 
-								fakeStore
-									.SaveDataAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())
-									.Returns(false);
+		_validateCodeServiceClient = new ValidateCodeServiceClient(testApp.CreateClient());
+	}
 
-								return fakeStore;
-							});
-						});
-				})
-				.Build();
+	[Given(@"playerCode is ""(.*)""")]
+	public void GivenPlayerCodeIs(string playerCode)
+	{
+		_context.Add("playerCode", playerCode);
+	}
 
-			opApiHost.StartAsync();
+	[Given(@"token is ""(.*)""")]
+	public void GivenTokenIs(string token)
+	{
+		_context.Add("token", token);
+	}
 
-			_validateCodeServiceClient = new ValidateCodeServiceClient(opApiHost.GetTestClient());
-		}
+	[Given(@"validate code is ""(.*)""")]
+	public void GivenValidateCodeIs(string validateCode)
+	{
+		_context.Add("validateCode", validateCode);
+	}
 
-		[Given(@"playerCode is ""(.*)""")]
-		public void GivenPlayerCodeIs(string playerCode)
-		{
-			_context.Add("playerCode", playerCode);
-		}
+	[Then(@"operation fail")]
+	public void ThenOperationFail()
+	{
+		Assert.IsFalse(_context.Get<bool>("result"));
+	}
 
-		[Given(@"token is ""(.*)""")]
-		public void GivenTokenIs(string token)
-		{
-			_context.Add("token", token);
-		}
+	[Then(@"operation success")]
+	public void ThenOperationSuccess()
+	{
+		Assert.IsTrue(_context.Get<bool>("result"));
+	}
 
-		[Given(@"validate code is ""(.*)""")]
-		public void GivenValidateCodeIs(string validateCode)
-		{
-			_context.Add("validateCode", validateCode);
-		}
+	[When(@"I call save data")]
+	public async Task WhenICallSaveDataAsync()
+	{
+		var token = _context.Get<string>("token");
+		var validateCode = _context.Get<string>("validateCode");
+		var playerCode = _context.Get<string>("playerCode");
 
-		[Then(@"operation fail")]
-		public void ThenOperationFail()
-		{
-			Assert.IsFalse(_context.Get<bool>("result"));
-		}
+		var result = await _validateCodeServiceClient
+			.SaveValidateCodeDataAsync(validateCode, token, JsonSerializer.Serialize(new { playerCode }));
 
-		[Then(@"operation success")]
-		public void ThenOperationSuccess()
-		{
-			Assert.IsTrue(_context.Get<bool>("result"));
-		}
-
-		[When(@"I call save data")]
-		public async System.Threading.Tasks.Task WhenICallSaveDataAsync()
-		{
-			var token = _context.Get<string>("token");
-			var validateCode = _context.Get<string>("validateCode");
-			var playerCode = _context.Get<string>("playerCode");
-
-			var result = await _validateCodeServiceClient.SaveValidateCodeDataAsync(validateCode, token, JsonSerializer.Serialize(new { playerCode }));
-
-			_context.Set<bool>(result, "result");
-		}
+		_context.Set(result, "result");
 	}
 }
