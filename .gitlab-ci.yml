@@ -34,9 +34,20 @@ push-nuget:
       - ValidateCodeClient/bin/$BuildConfiguration/*.nupkg
 
 push-docker-image:
-  extends: .push-docker-image-template
+  stage: publish
+  needs:
+    - build-code
+    - unit-test
+  only:
+    - main
+  cache:
+    key: $BuildCacheKey
+    untracked: true   
+    policy: pull
   script:
-    - push_docker 'ValidateCodeApi/ValidateCodeApi.csproj' $ImageName $Tag
+    - docker build -t "$ImageName:$Tag" --build-arg [BUILD_CONFIGURATION]=$BUILD_CONFIGURATION -f "ValidateCodeApi/Dockerfile" . --no-cache
+    - docker push $ImageName:$Tag
+
 
 push-k8s-template:
   extends: .push-k8s-template
