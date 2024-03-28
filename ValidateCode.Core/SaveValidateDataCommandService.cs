@@ -2,14 +2,9 @@
 
 namespace TGS.Services.ValidateCode;
 
-internal class SaveValidateDataCommandService : ICommandService<SaveValidateDataCommand>
+internal class SaveValidateDataCommandService(IValidateCodeStore validateCodeStore) : ICommandService<SaveValidateDataCommand>
 {
-	private readonly IValidateCodeStore _validateCodeStore;
-
-	public SaveValidateDataCommandService(IValidateCodeStore validateCodeStore)
-	{
-		_validateCodeStore = validateCodeStore ?? throw new ArgumentNullException(nameof(validateCodeStore));
-	}
+	private readonly IValidateCodeStore _validateCodeStore = validateCodeStore ?? throw new ArgumentNullException(nameof(validateCodeStore));
 
 	public async ValueTask ExecuteAsync(SaveValidateDataCommand command, CancellationToken cancellationToken = default)
 	{

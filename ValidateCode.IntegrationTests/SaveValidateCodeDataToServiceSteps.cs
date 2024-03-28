@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
-using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using TechTalk.SpecFlow;
 using TGS.Services.ValidateCode;
 using TGS.Services.ValidateCode.Clients;
@@ -9,15 +9,10 @@ using TGS.Services.ValidateCode.Clients;
 namespace TGS.ValidateCode.IntegrationTests;
 
 [Binding]
-public class SaveValidateCodeDataToServiceSteps
+public class SaveValidateCodeDataToServiceSteps(ScenarioContext context)
 {
-	private readonly ScenarioContext _context;
-	private IValidateCodeServiceClient _validateCodeServiceClient = default!;
-
-	public SaveValidateCodeDataToServiceSteps(ScenarioContext context)
-	{
-		_context = context;
-	}
+	private readonly ScenarioContext _context = context;
+	private ValidateCodeServiceClient _validateCodeServiceClient = default!;
 
 	[BeforeScenario]
 	[Scope(Tag = "Success")]
@@ -66,34 +61,19 @@ public class SaveValidateCodeDataToServiceSteps
 	}
 
 	[Given(@"playerCode is ""(.*)""")]
-	public void GivenPlayerCodeIs(string playerCode)
-	{
-		_context.Add("playerCode", playerCode);
-	}
+	public void GivenPlayerCodeIs(string playerCode) => _context.Add("playerCode", playerCode);
 
 	[Given(@"token is ""(.*)""")]
-	public void GivenTokenIs(string token)
-	{
-		_context.Add("token", token);
-	}
+	public void GivenTokenIs(string token) => _context.Add("token", token);
 
 	[Given(@"validate code is ""(.*)""")]
-	public void GivenValidateCodeIs(string validateCode)
-	{
-		_context.Add("validateCode", validateCode);
-	}
+	public void GivenValidateCodeIs(string validateCode) => _context.Add("validateCode", validateCode);
 
 	[Then(@"operation fail")]
-	public void ThenOperationFail()
-	{
-		Assert.IsFalse(_context.Get<bool>("result"));
-	}
+	public void ThenOperationFail() => ClassicAssert.IsFalse(_context.Get<bool>("result"));
 
 	[Then(@"operation success")]
-	public void ThenOperationSuccess()
-	{
-		Assert.IsTrue(_context.Get<bool>("result"));
-	}
+	public void ThenOperationSuccess() => ClassicAssert.IsTrue(_context.Get<bool>("result"));
 
 	[When(@"I call save data")]
 	public async Task WhenICallSaveDataAsync()

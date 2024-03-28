@@ -6,14 +6,9 @@ using OpenTelemetry.Exporter;
 
 namespace TGS.ValidateCode.IntegrationTests;
 
-internal class TestValidateCodeApplication : WebApplicationFactory<Program>
+internal class TestValidateCodeApplication(Action<IWebHostBuilder>? webHostConfigure = null) : WebApplicationFactory<Program>
 {
-	private readonly Action<IWebHostBuilder>? _webHostConfigure;
-
-	public TestValidateCodeApplication(Action<IWebHostBuilder>? webHostConfigure = null)
-	{
-		_webHostConfigure = webHostConfigure;
-	}
+	private readonly Action<IWebHostBuilder>? _webHostConfigure = webHostConfigure;
 
 	protected override void ConfigureWebHost(IWebHostBuilder builder)
 	{

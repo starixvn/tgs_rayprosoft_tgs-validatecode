@@ -2,14 +2,9 @@
 
 namespace TGS.Services.ValidateCode.Configuration;
 
-public class ValidateCodeConfiguration
+public class ValidateCodeConfiguration(IServiceCollection services)
 {
-	public IServiceCollection Services { get; }
-
-	public ValidateCodeConfiguration(IServiceCollection services)
-	{
-		Services = services ?? throw new ArgumentNullException(nameof(services));
-	}
+	public IServiceCollection Services { get; } = services ?? throw new ArgumentNullException(nameof(services));
 
 	public ValidateCodeConfiguration UseRepository<TRepository>() where TRepository : class, IValidateCodeStore
 	{
