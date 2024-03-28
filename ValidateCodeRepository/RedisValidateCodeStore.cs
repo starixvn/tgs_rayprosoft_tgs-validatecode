@@ -3,16 +3,11 @@ using TGS.Services.ValidateCode;
 
 namespace TGS.Repositories.ValidateCode;
 
-internal class RedisValidateCodeStore : IValidateCodeStore
+internal class RedisValidateCodeStore(RedisConnectionFactory redisConnectionFactory) : IValidateCodeStore
 {
 	private static readonly TimeSpan _Expire = TimeSpan.FromMinutes(5);
 	private static readonly string _KeyPrefix = "TGS:ValidateCodes";
-	private readonly IDatabase _redisDatabase;
-
-	public RedisValidateCodeStore(RedisConnectionFactory redisConnectionFactory)
-	{
-		_redisDatabase = redisConnectionFactory.Database;
-	}
+	private readonly IDatabase _redisDatabase = redisConnectionFactory.Database;
 
 	public async ValueTask<string?> GetDataAsync(string validateCode, string token)
 	{

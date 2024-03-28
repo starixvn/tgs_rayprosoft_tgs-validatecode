@@ -1,14 +1,10 @@
 ﻿using FluentdForward.OpenTelemetry.MessagePack;
-using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using TGS.Services.ValidateCode;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Configuration
-	.AddJsonFile("/config/appsettings.json", true);
 
 builder.Logging
 	.AddOpenTelemetry(options =>
@@ -39,6 +35,7 @@ builder.Services
 	.AddControllers()
 	.AddNewtonsoftJson();
 
+var excludeExtensions = new[] { "html", "ico", "png", "jpg" };
 builder.Services
 	.AddOpenTelemetry()
 	.WithTracing(tracingBuilder => tracingBuilder
@@ -46,7 +43,13 @@ builder.Services
 			.AddEnvironmentVariableDetector())
 		.AddSource("Tgs.*")
 		.AddSource("TGS.*")
-		.AddAspNetCoreInstrumentation()
+		.AddAspNetCoreInstrumentation(options => options.Filter = httpContext => !httpContext.Request.Path.HasValue
+			|| !httpContext.Request.Path.StartsWithSegments("/swagger")
+			&& !httpContext.Request.Path.StartsWithSegments("/healthz")
+			&& !httpContext.Request.Path.StartsWithSegments("/metrics")
+			&& !httpContext.Request.Path.StartsWithSegments("/profiler/")
+			&& !excludeExtensions.Any(
+				ext => httpContext.Request.Path.Value.EndsWith($".{ext}")))
 		.AddHttpClientInstrumentation()
 		.AddProfileViewExporter()
 		.AddOtlpExporter())
@@ -55,14 +58,6 @@ builder.Services
 		.AddAspNetCoreInstrumentation()
 		.AddOtlpExporter())
 	.Services
-	.Configure<AspNetCoreInstrumentationOptions>(
-		options => options.Filter = httpContext => !httpContext.Request.Path.HasValue
-			|| !httpContext.Request.Path.StartsWithSegments("/swagger")
-			&& !httpContext.Request.Path.StartsWithSegments("/healthz")
-			&& !httpContext.Request.Path.StartsWithSegments("/metrics")
-			&& !httpContext.Request.Path.StartsWithSegments("/profiler/")
-			&& !new[] { "html", "ico", "png", "jpg" }.Any(
-				ext => httpContext.Request.Path.Value.EndsWith($".{ext}")))
 	.AddProfileViewer();
 
 builder.Services.AddSwaggerGen(c =>

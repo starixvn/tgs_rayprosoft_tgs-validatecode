@@ -1,5 +1,6 @@
 ﻿using NSubstitute;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using TGS.Services.ValidateCode;
 
 namespace TGS.Tests.ValidateCode.UnitTests;
@@ -26,7 +27,7 @@ public class GetValidateDataTests
 
 		var actual = await sut.GetAsync(query);
 
-		Assert.AreEqual(expected, actual);
+		ClassicAssert.AreEqual(expected, actual);
 	}
 
 	[Test]
@@ -48,6 +49,6 @@ public class GetValidateDataTests
 
 		var actual = await sut.GetAsync(query);
 
-		Assert.AreEqual(expected, actual);
+		ClassicAssert.AreEqual(expected, actual);
 	}
 }
