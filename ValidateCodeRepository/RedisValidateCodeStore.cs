@@ -5,7 +5,7 @@ namespace TGS.Repositories.ValidateCode;
 
 internal class RedisValidateCodeStore(RedisConnectionFactory redisConnectionFactory) : IValidateCodeStore
 {
-	private static readonly TimeSpan _Expire = TimeSpan.FromMinutes(5);
+	private static readonly TimeSpan _Expire = TimeSpan.FromMinutes(10);
 	private static readonly string _KeyPrefix = "TGS:ValidateCodes";
 	private readonly IDatabase _redisDatabase = redisConnectionFactory.Database;
 
