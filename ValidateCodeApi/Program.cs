@@ -6,6 +6,12 @@ using TGS.Services.ValidateCode;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddJsonFile("appsettings.json",
+		optional: true,
+		reloadOnChange: true);
+
+builder.WebHost.UseUrls($"http://0.0.0.0:{builder.Configuration["HostingPort"]}");
+
 builder.Logging
 	.AddOpenTelemetry(options =>
 	{
