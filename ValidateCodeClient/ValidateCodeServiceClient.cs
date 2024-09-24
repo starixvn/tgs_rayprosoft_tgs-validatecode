@@ -33,4 +33,19 @@ internal class ValidateCodeServiceClient : IValidateCodeServiceClient
 
 		return response.StatusCode == HttpStatusCode.Created;
 	}
+
+	public async ValueTask<bool> CheckValidateCodeExistedAsync(string validateCode, string token)
+	{
+		var response = await _httpClient
+			.GetAsync($"/validate-code/{validateCode}/{token}/exists")
+			.ConfigureAwait(false);
+
+		if (response.StatusCode == HttpStatusCode.OK)
+		{
+			var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+			return bool.Parse(content);
+		}
+
+		return false;
+	}
 }

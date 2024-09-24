@@ -73,4 +73,27 @@ public class ValidateCodeController : ControllerBase
 
 		return string.IsNullOrEmpty(content) ? null : JObject.Parse(content);
 	}
+
+	/// <summary>
+	/// Check if data exists by validate code.
+	/// </summary>
+	/// <param name="checkValidateDataExistedService">The check validate data existed service.</param>
+	/// <param name="validateCode">The validate code.</param>
+	/// <param name="token">The token.</param>
+	/// <returns>A boolean indicating whether the data exists.</returns>
+	[HttpGet("{validateCode}/{token}/exists")]
+	[ProducesResponseType(StatusCodes.Status200OK)]
+	[Produces(MediaTypeNames.Application.Json)]
+	public async Task<IActionResult> CheckExistedDataAsync(
+		[FromServices] IGetService<CheckValidateDataExistedQuery, bool?> checkValidateDataExistedService,
+		string validateCode,
+		string token)
+	{
+		var exists = await checkValidateDataExistedService
+			.GetAsync(new CheckValidateDataExistedQuery(validateCode, token))
+			.ConfigureAwait(false);
+
+		return Ok(exists ?? false);
+	}
+
 }

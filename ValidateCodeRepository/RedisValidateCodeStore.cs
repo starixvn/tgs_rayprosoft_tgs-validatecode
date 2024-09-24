@@ -23,6 +23,16 @@ internal class RedisValidateCodeStore(RedisConnectionFactory redisConnectionFact
 		return value;
 	}
 
+	public async ValueTask<bool?> CheckDataExistedAsync(string validateCode, string token)
+	{
+		var dataKey = $"{_KeyPrefix}:{token}:{validateCode}";
+		var value = await _redisDatabase
+			.StringGetAsync(dataKey)
+			.ConfigureAwait(false);
+
+		return !value.IsNullOrEmpty;
+	}
+
 	public async ValueTask<bool> SaveDataAsync(string validateCode, string token, string content)
 	{
 		return await _redisDatabase.StringSetAsync(

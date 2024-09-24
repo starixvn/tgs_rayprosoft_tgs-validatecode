@@ -4,15 +4,15 @@
 		<TargetFrameworks>net6.0;net8.0</TargetFrameworks>
 		<RootNamespace>TGS.Services.ValidateCode.Clients</RootNamespace>
 		<Nullable>enable</Nullable>
-		<Version>1.1.0</Version>
+		<Version>1.1.2</Version>
 		<PackageId>Tgs.ValidateCode.Client</PackageId>
 		<Authors>Raypro</Authors>
 		<Product>Tgs.ValidateCode.Client</Product>
 		<IsPackable>true</IsPackable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<LangVersion>10.0</LangVersion>
-		<PackageProjectUrl>https://gitlab.com/rayprosoft/tgs-validatecode</PackageProjectUrl>
-		<RepositoryUrl>https://gitlab.com/rayprosoft/tgs-validatecode.git</RepositoryUrl>
+		<PackageProjectUrl>https://git3.nexdev.net/tgs/rayprosoft/tgs-validatecode</PackageProjectUrl>
+		<RepositoryUrl>https://git3.nexdev.net/tgs/rayprosoft/tgs-validatecode.git</RepositoryUrl>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net5.0|AnyCPU'">
